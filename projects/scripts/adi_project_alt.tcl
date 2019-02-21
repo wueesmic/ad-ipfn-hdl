@@ -5,7 +5,7 @@ variable version
 
 set family "none"
 set device "none"
-set version "18.0.0"
+set version "18.1.0"
 
 proc adi_project_altera {project_name} {
 
@@ -38,6 +38,12 @@ proc adi_project_altera {project_name} {
   if [regexp "_a10soc$" $project_name] {
     set family "Arria 10"
     set device 10AS066N3F40E2SG
+    set system_qip_file system_bd/system_bd.qip
+  }
+
+  if [regexp "_s10soc$" $project_name] {
+    set family "Stratix 10"
+    set device 1SX280LU2F50E1VG
     set system_qip_file system_bd/system_bd.qip
   }
 
