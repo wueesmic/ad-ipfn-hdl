@@ -61,6 +61,7 @@ set_module_property COMPOSITION_CALLBACK jesd204_phy_composition_callback
 
 # parameters
 
+ad_ip_parameter DEVICE STRING "" false
 ad_ip_parameter ID NATURAL 0 false
 ad_ip_parameter SOFT_PCS BOOLEAN false false
 ad_ip_parameter TX_OR_RX_N BOOLEAN false false
@@ -71,6 +72,8 @@ ad_ip_parameter REGISTER_INPUTS INTEGER 0 false
 ad_ip_parameter LANE_INVERT INTEGER 0 false
 
 proc jesd204_phy_composition_callback {} {
+
+  set device [get_parameter_value "DEVICE"]
   set soft_pcs [get_parameter_value "SOFT_PCS"]
   set tx [get_parameter_value "TX_OR_RX_N"]
   set lane_rate [get_parameter_value "LANE_RATE"]
@@ -89,7 +92,21 @@ proc jesd204_phy_composition_callback {} {
   add_interface link_reset reset sink
   set_interface_property link_reset EXPORT_OF link_clock.clk_in_reset
 
-  add_instance native_phy altera_xcvr_native_a10
+  if {[string equal $device "Arria 10"]} {
+    add_instance native_phy altera_xcvr_native_a10
+    set_instance_parameter_value native_phy {enh_txfifo_mode} "Phase compensation"
+    set_instance_parameter_value native_phy {enh_rxfifo_mode} "Phase compensation"
+    set reconfig_avmm_address_width 10
+  } elseif {[string equal $device "Stratix 10"]} {
+    add_instance native_phy altera_xcvr_native_s10_htile
+    set_instance_parameter_value native_phy {tx_fifo_mode} "Phase compensation"
+    set_instance_parameter_value native_phy {rx_fifo_mode} "Phase compensation"
+    set_instance_parameter_value native_phy {rx_fifo_pfull} 5
+    set reconfig_avmm_address_width 11
+  } else {
+    send_message error "Only Arria 10 and Stratix 10 are supported."
+  }
+
   set_instance_property native_phy SUPPRESS_ALL_WARNINGS true
   set_instance_property native_phy SUPPRESS_ALL_INFO_MESSAGES true
   if {$soft_pcs} {
@@ -119,14 +136,12 @@ proc jesd204_phy_composition_callback {} {
     set_instance_parameter_value native_phy {duplex_mode} "tx"
     set_instance_parameter_value native_phy {bonded_mode} "not_bonded"
     set_instance_parameter_value native_phy {enable_port_tx_pma_elecidle} 0
-    set_instance_parameter_value native_phy {enh_txfifo_mode} "Phase compensation"
   } else {
     set_instance_parameter_value native_phy {duplex_mode} "rx"
     set_instance_parameter_value native_phy {set_cdr_refclk_freq} $refclk_frequency
     set_instance_parameter_value native_phy {enable_port_rx_is_lockedtodata} 1
     set_instance_parameter_value native_phy {enable_port_rx_is_lockedtoref} 0
     set_instance_parameter_value native_phy {enable_ports_rx_manual_cdr_mode} 0
-    set_instance_parameter_value native_phy {enh_rxfifo_mode} "Phase compensation"
   }
 
   set_instance_parameter_value native_phy {channels} $num_of_lanes
@@ -146,6 +161,7 @@ proc jesd204_phy_composition_callback {} {
   set_instance_parameter_value native_phy {set_prbs_soft_logic_enable} 0
 
   add_instance phy_glue jesd204_phy_glue
+  set_instance_parameter_value phy_glue DEVICE $device
   set_instance_parameter_value phy_glue TX_OR_RX_N $tx
   set_instance_parameter_value phy_glue SOFT_PCS $soft_pcs
   set_instance_parameter_value phy_glue NUM_OF_LANES $num_of_lanes
