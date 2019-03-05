@@ -57,7 +57,7 @@ source $ad_hdl_dir/library/scripts/adi_ip_alt.tcl
 
 ad_ip_create jesd204_phy "ADI JESD204 PHY"
 set_module_property COMPOSITION_CALLBACK jesd204_phy_composition_callback
-set_module_property INTERNAL true
+# set_module_property INTERNAL true
 
 # parameters
 
