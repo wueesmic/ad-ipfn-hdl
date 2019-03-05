@@ -64,6 +64,7 @@ ad_ip_files jesd204_glue [list \
 
 # parameters
 
+ad_ip_parameter DEVICE STRING "" false
 ad_ip_parameter TX_OR_RX_N BOOLEAN false false
 ad_ip_parameter SOFT_PCS BOOLEAN false false
 ad_ip_parameter NUM_OF_LANES POSITIVE 4 true
@@ -225,11 +226,20 @@ proc jesd204_phy_glue_elab {} {
   variable sig_offset
   variable const_offset
 
+  set device [get_parameter DEVICE]
   set soft_pcs [get_parameter SOFT_PCS]
   set num_of_lanes [get_parameter NUM_OF_LANES]
 
   set sig_offset 0
   set const_offset 0
+
+  if {[string equal $device "Arria 10"]} {
+    set reconfig_avmm_address_width 10
+  } elseif {[string equal $device "Stratix 10"]} {
+    set reconfig_avmm_address_width 11
+  } else {
+    send_message error "Only Arria 10 and Stratix 10 are supported."
+  }
 
   glue_add_if $num_of_lanes reconfig_clk clock sink true
   glue_add_if_port $num_of_lanes reconfig_clk reconfig_clk clk Input 1 true
@@ -242,7 +252,7 @@ proc jesd204_phy_glue_elab {} {
     set_interface_property reconfig_avmm_${i} associatedClock reconfig_clk
     set_interface_property reconfig_avmm_${i} associatedReset reconfig_reset
   }
-  glue_add_if_port $num_of_lanes reconfig_avmm reconfig_address address Input 10
+  glue_add_if_port $num_of_lanes reconfig_avmm reconfig_address address Input $reconfig_avmm_address_width
   glue_add_if_port $num_of_lanes reconfig_avmm reconfig_read read Input 1
   glue_add_if_port $num_of_lanes reconfig_avmm reconfig_readdata readdata Output 32
   glue_add_if_port $num_of_lanes reconfig_avmm reconfig_waitrequest waitrequest Output 1
