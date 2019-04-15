@@ -544,7 +544,7 @@ module util_adxcvr_xcm #(
       .COMMON_CFG0           (16'b0000000000000000),
       .COMMON_CFG1           (16'b0000000000000000),
       .POR_CFG               (16'b0000000000000000),
-      .PPF0_CFG              (16'b0000100000000000),
+      .PPF0_CFG              (16'b101100000000),
       .PPF1_CFG              (16'b0000011000000000),
       .QPLL0CLKOUT_RATE      ("HALF"),
       .QPLL0_CFG0            (QPLL_CFG0),
