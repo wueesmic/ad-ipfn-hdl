@@ -85,19 +85,25 @@ function signed [ADC_DATA_WIDTH +1:0] adc_channel_mean_f;
 
 function  trigger_eval_f;
 	input signed [ADC_DATA_WIDTH +1:0] adc_channel_mean;
-	input signed [ADC_DATA_WIDTH +1:0] trig_lvl;
+	input signed [ADC_DATA_WIDTH - 1:0] trig_lvl;
+    
+    reg signed [ADC_DATA_WIDTH +1:0] trig_lvl_ext; 
 
-	   begin 	
-        trigger_eval_f =(adc_channel_mean > trig_lvl)? 1'b1: 1'b0;
+	   begin 
+	       trig_lvl_ext = $signed({{2{trig_lvl[ADC_DATA_WIDTH-1]}}, trig_lvl}); // sign extend
+           trigger_eval_f =(adc_channel_mean > trig_lvl_ext)? 1'b1: 1'b0;
        end 
 endfunction
 
 function  trigger_minus_eval_f;
 	input signed [ADC_DATA_WIDTH +1:0] adc_channel_mean;
-	input signed [ADC_DATA_WIDTH +1:0] trig_lvl;
+	input signed [ADC_DATA_WIDTH -1:0] trig_lvl;
+	
+	reg signed [ADC_DATA_WIDTH +1:0] trig_lvl_ext; 
 
 	   begin 	
-        trigger_minus_eval_f =(adc_channel_mean < trig_lvl)? 1'b1: 1'b0;
+         trig_lvl_ext = $signed({{2{trig_lvl[ADC_DATA_WIDTH-1]}}, trig_lvl}); // sign extend
+         trigger_minus_eval_f =(adc_channel_mean < trig_lvl_ext)? 1'b1: 1'b0;
        end 
 endfunction
 
@@ -137,41 +143,50 @@ endfunction
     reg  signed [15:0]  trig_level_a_reg=0;       
     reg  signed [15:0]  trig_level_b_reg=0;       
 
-	 localparam IDLE    = 2'b00;
-     localparam PULSE0  = 2'b01;
-     localparam PULSE1  = 2'b10;
-     localparam TRIGGER = 2'b11;
+	 localparam IDLE    = 3'b000;
+     localparam READY   = 3'b001;
+     localparam PULSE0  = 3'b010;
+     localparam PULSE1  = 3'b011;
+     localparam TRIGGER = 3'b100;
      
-     localparam WAIT_WIDTH = 10;
+     localparam WAIT_WIDTH = 24;
      
      reg [WAIT_WIDTH-1:0] wait_cnt = 0; // {WAIT_WIDTH{1'b1}}
  
     // (* mark_debug = "true" *) 
-    reg [1:0] state = IDLE;
+    reg [2:0] state = IDLE;
      
     always @(posedge adc_clk)
        if (trig_reset) begin
           state <= IDLE;
           trigger0_r  <=  0; 
           trigger1_r  <=  0; 
+          wait_cnt <= 24'h31_9750; //3_250_000 = 26 ms
        end
        else
           case (state)
              IDLE: begin
+                trigger0_r  <=  0; 
+                trigger1_r  <=  0; 
+                wait_cnt <= wait_cnt - 1;
+                if (wait_cnt == {WAIT_WIDTH{1'b0}})
+                   state <= READY;
+             end
+             READY: begin
                 if (trigger_eval_f(adc_mean_a, trig_level_a_reg)) begin //{1'b0,trig_level_a, 3'b000}
                    state <= PULSE0;
                 end   
-                trigger0_r  <=  0; 
+                trigger0_r  <=  1'b1; 
                 trigger1_r  <=  0; 
                 wait_cnt <= 0;
              end
              PULSE0 : begin
                 //if (trigger_eval_f(adc_mean_b, {trig_level_b, 4'h0})) begin
+                trigger0_r <=  1'b0; 
                 if (trigger_eval_f(adc_mean_b, trig_level_a_reg)) begin
                     state <= PULSE1;
                 end 
                 wait_cnt   <=  wait_cnt + 8'hFF; 
-                trigger0_r <=  1'b1; 
              end
              PULSE1 : begin   
 //                trigger1_r <=  1'b1; 
@@ -182,10 +197,12 @@ endfunction
              TRIGGER : begin 
                 trigger1_r <=  1'b1; 
                 wait_cnt <= wait_cnt + 1;
-                if (wait_cnt == {WAIT_WIDTH{1'b1}})
-                     state <= IDLE;
+ //               if (wait_cnt == {WAIT_WIDTH{1'b1}})
+ //                    state <= IDLE;
 //                    state <= TRIGGER;
              end
+             default :  
+                     state <= IDLE;
           endcase
 
 
@@ -195,7 +212,7 @@ endfunction
                     2'b01: trig_level_a_reg  <=  trig_level; 
                     2'b10: trig_level_b_reg  <=  trig_level; 
 //                    2'b11:
-                    //default :  
+                    default : ;  
                  endcase
                            
 	

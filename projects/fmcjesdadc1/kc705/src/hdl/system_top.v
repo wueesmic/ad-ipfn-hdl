@@ -131,8 +131,8 @@ module system_top (
   wire    [13:0]      gpio_trigg_lvl = gpio_o[31:18]; // 14 bit GPIO lines 18 -31
 
 //assign gpio_o
-    assign           user_sma_gpio_n = rx_clk; // J14
-    assign           user_sma_clk_n = adc_enable[0] & adc_valid[0]; //   user_sma_clk_n, // SMA J12
+    //assign           user_sma_gpio_n = rx_clk; // J14
+    //assign           user_sma_clk_n = adc_valid[0]; //  adc_enable[0] &  user_sma_clk_n, // SMA J12
 // SMA J11
     assign user_sma_clk_p = gpio_o[9]; // J11 also First LED
      
@@ -159,15 +159,15 @@ module system_top (
 //    .trig_level_a ({2'b11, 16'hF000} ), // < 18'h02000 / 18'd8192 = -200mV 18'h03000 = -320mV
 //    .trig_level_b ({2'b00, 16'h1000} ), // >
 
-    .trig_reset(gpio_o[9]), // First LED
-    .trig_level_add(gpio_o[11:10]),
+    .trig_reset(!gpio_o[9]), // First LED
+    .trig_level_add(gpio_o[12:11]),
     .trig_level(gpio_o[55:40]),
     //.trig_level_a (gpio_trigg_lvl), // {2'b11, 16'h0FE0} < 18'h02000 / 18'd8192 = -200mV 18'h03000 = -320mV
     //.trig_level_b (gpio_trigg_lvl), // > {2'b00, 16'h0200}
 //    .trig_level_b ({2'b11, 16'h8000} ),  //,-2048
 
-    .trigger0 (), // user_sma_clk_p
-    .trigger1 () //user_sma_clk_n
+    .trigger0 (user_sma_clk_n), // user_sma_clk_p
+    .trigger1 (user_sma_gpio_n) //J14
     );
 
   IBUFDS_GTE2 i_ibufds_rx_ref_clk (
