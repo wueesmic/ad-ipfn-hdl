@@ -131,9 +131,11 @@ module system_top (
   wire    [13:0]      gpio_trigg_lvl = gpio_o[31:18]; // 14 bit GPIO lines 18 -31
 
 //assign gpio_o
-    assign           user_sma_gpio_n = rx_clk;
-    assign           user_sma_gpio_p = adc_enable[0] & adc_valid[0];
-
+    assign           user_sma_gpio_n = rx_clk; // J14
+    assign           user_sma_clk_n = adc_enable[0] & adc_valid[0]; //   user_sma_clk_n, // SMA J12
+// SMA J11
+    assign user_sma_clk_p = gpio_o[9]; // J11 also First LED
+     
   assign ddr3_1_p = 2'b11;
   assign ddr3_1_n = 3'b000;
   assign fan_pwm = 1'b1;
@@ -164,8 +166,8 @@ module system_top (
     //.trig_level_b (gpio_trigg_lvl), // > {2'b00, 16'h0200}
 //    .trig_level_b ({2'b11, 16'h8000} ),  //,-2048
 
-    .trigger0 (user_sma_clk_p),
-    .trigger1 (user_sma_clk_n)
+    .trigger0 (), // user_sma_clk_p
+    .trigger1 () //user_sma_clk_n
     );
 
   IBUFDS_GTE2 i_ibufds_rx_ref_clk (
@@ -199,6 +201,18 @@ module system_top (
   // instantiations
 
   system_wrapper i_system_wrapper (
+      .adc_data_a (adc_data[0]),
+      .adc_enable_a (adc_enable[0]),
+      .adc_valid_a (adc_valid[0]),
+      .adc_data_b (adc_data[1]),
+      .adc_enable_b (adc_enable[1]),
+      .adc_valid_b (adc_valid[1]),
+      .adc_data_c (adc_data[2]),
+      .adc_enable_c (adc_enable[2]),
+      .adc_valid_c (adc_valid[2]),
+      .adc_data_d (adc_data[3]),
+      .adc_enable_d (adc_enable[3]),
+      .adc_valid_d (adc_valid[3]),
     .ddr3_addr (ddr3_addr),
     .ddr3_ba (ddr3_ba),
     .ddr3_cas_n (ddr3_cas_n),

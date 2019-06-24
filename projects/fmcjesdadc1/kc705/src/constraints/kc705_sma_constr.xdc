@@ -1,3 +1,10 @@
+# Other constraints in:
+#/home/bernardo/FPGA/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/system_constr.xdc
+#/home/bernardo/FPGA/ad-ipfn-hdl/projects/common/kc705/kc705_system_constr.xdc
+#First LED
+#set_property -dict  {PACKAGE_PIN  AB8   IOSTANDARD  LVCMOS15} [get_ports gpio_bd[9]]
+# PACKAGE_PIN AB8 [get_ports GPIO_LED_0_LS] 
+#
 ################################################################################
 ##### SMA CLOCKS and GPOI
 ###############################################################################
