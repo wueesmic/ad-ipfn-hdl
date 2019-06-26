@@ -150,7 +150,7 @@ endfunction
           state <= IDLE;
           trigger0_r  <=  0; 
           trigger1_r  <=  0; 
-          wait_cnt <= 24'h2F_AF08; //3125000 * 8 ns= 25 ms
+          wait_cnt <= 24'h7A120; //125000 * 4ns
        end
        else
           case (state)
