@@ -19,3 +19,4 @@ set_property PACKAGE_PIN Y23 [get_ports user_sma_gpio_p]
 set_property PACKAGE_PIN Y24 [get_ports user_sma_gpio_n]
 #set_property IOSTANDARD LVCMOS25 [get_ports user_sma_gpio_n]
 
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]

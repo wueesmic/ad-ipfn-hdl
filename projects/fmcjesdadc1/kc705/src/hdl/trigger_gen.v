@@ -83,15 +83,15 @@ function signed [ADC_DATA_WIDTH +1:0] adc_channel_mean_f;
 	  end 
   endfunction
 
-function  trigger_eval_f;
+function  gratter_eval_f;
 	input signed [ADC_DATA_WIDTH +1:0] adc_channel_mean;
 	input signed [ADC_DATA_WIDTH - 1:0] trig_lvl;
     
     reg signed [ADC_DATA_WIDTH +1:0] trig_lvl_ext; 
 
 	   begin 
-	       trig_lvl_ext = $signed({{2{trig_lvl[ADC_DATA_WIDTH-1]}}, trig_lvl}); // sign extend
-           trigger_eval_f =(adc_channel_mean > trig_lvl_ext)? 1'b1: 1'b0;
+	       trig_lvl_ext = $signed({trig_lvl[ADC_DATA_WIDTH-1], trig_lvl, 1'b0}); // Mult * 2 and sign extend
+           gratter_eval_f =(adc_channel_mean > trig_lvl_ext)? 1'b1: 1'b0;
        end 
 endfunction
 
@@ -102,14 +102,15 @@ function  trigger_minus_eval_f;
 	reg signed [ADC_DATA_WIDTH +1:0] trig_lvl_ext; 
 
 	   begin 	
-         trig_lvl_ext = $signed({{2{trig_lvl[ADC_DATA_WIDTH-1]}}, trig_lvl}); // sign extend
+         trig_lvl_ext = $signed({trig_lvl[ADC_DATA_WIDTH-1], trig_lvl, 1'b0}); // Mult * 2 and  sign extend
          trigger_minus_eval_f =(adc_channel_mean < trig_lvl_ext)? 1'b1: 1'b0;
        end 
 endfunction
 
 /*********** End Function Declarations ***************/
 
-/*Trigger Logic*/
+/************ Trigger Logic ************/
+	/* ADC Data comes in pairs. Compute mean, this case or simply add */
 	reg signed [17:0] adc_mean_a;
 	always @(posedge adc_clk) begin
          if (adc_enable_a)  // Use adc_valid_a ?
@@ -119,14 +120,6 @@ endfunction
 	reg  trigger0_r;
     assign trigger0 = trigger0_r; 
     
-/*
-	reg  trigger0_r = 0;
-
-	always @(posedge adc_clk) begin
-         trigger0_r <= trigger_minus_eval_f(adc_mean_a, trig_level_a);
-    end
-*/
-
 	reg signed [17:0] adc_mean_b;
 	always @(posedge adc_clk) begin
          if (adc_enable_b)  // Use adc_valid_b ?
@@ -135,11 +128,7 @@ endfunction
 	
 	reg  trigger1_r = 0;
     assign trigger1 = trigger1_r; 
-/*
-	always @(posedge adc_clk) begin
-         trigger1_r <= trigger_eval_f(adc_mean_b, {trig_level_b, 4'h0}  ); // {2'b00, 16'h0200}
-    end
-*/	
+
     reg  signed [15:0]  trig_level_a_reg=0;       
     reg  signed [15:0]  trig_level_b_reg=0;       
 
@@ -161,7 +150,7 @@ endfunction
           state <= IDLE;
           trigger0_r  <=  0; 
           trigger1_r  <=  0; 
-          wait_cnt <= 24'h31_9750; //3_250_000 = 26 ms
+          wait_cnt <= 24'h2F_AF08; //3125000 * 8 ns= 25 ms
        end
        else
           case (state)
@@ -173,7 +162,7 @@ endfunction
                    state <= READY;
              end
              READY: begin
-                if (trigger_eval_f(adc_mean_a, trig_level_a_reg)) begin //{1'b0,trig_level_a, 3'b000}
+                if (gratter_eval_f(adc_mean_a, trig_level_a_reg)) begin 
                    state <= PULSE0;
                 end   
                 trigger0_r  <=  1'b1; 
@@ -183,23 +172,22 @@ endfunction
              PULSE0 : begin
                 //if (trigger_eval_f(adc_mean_b, {trig_level_b, 4'h0})) begin
                 trigger0_r <=  1'b0; 
-                if (trigger_eval_f(adc_mean_b, trig_level_a_reg)) begin
+                if (trigger_minus_eval_f(adc_mean_b, trig_level_b_reg)) begin
                     state <= PULSE1;
                 end 
-                wait_cnt   <=  wait_cnt + 8'hFF; 
+                wait_cnt   <=  wait_cnt + 8'd20; // Multiply delay by 20
              end
              PULSE1 : begin   
-//                trigger1_r <=  1'b1; 
+                trigger1_r <=  1'b1; 
                 wait_cnt <= wait_cnt - 1;
                 if (wait_cnt == {WAIT_WIDTH{1'b0}})
                    state <= TRIGGER;
              end
              TRIGGER : begin 
-                trigger1_r <=  1'b1; 
-                wait_cnt <= wait_cnt + 1;
+                trigger1_r <=  1'b0; 
+ //               wait_cnt <= wait_cnt + 1;
  //               if (wait_cnt == {WAIT_WIDTH{1'b1}})
  //                    state <= IDLE;
-//                    state <= TRIGGER;
              end
              default :  
                      state <= IDLE;
