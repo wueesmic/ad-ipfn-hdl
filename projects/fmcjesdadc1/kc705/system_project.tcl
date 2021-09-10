@@ -13,7 +13,8 @@ adi_project_files fmcjesdadc1_kc705 [list \
   "$ad_hdl_dir/projects/common/kc705/kc705_system_constr.xdc" \
   "src/constraints/kc705_sma_constr.xdc" \
   "src/ip/xdma_0/xdma_0.xci" \
-  "src/hdl/shapi_regs_v1.vh" \
+  "src/hdl/shapi_regs_v1.sv" \
+  "src/hdl/shapi_stdrt_dev_inc.vh" \
   "src/constraints/pcie_xdma_kc705_x4g2.xdc" \
   "src/hdl/trigger_gen.v" ]
 
