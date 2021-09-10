@@ -625,9 +625,9 @@ module system_top #
    
 
     
-   wire m_axis_tready = s_axis_c2h_tready_0 ; // || ( !acq_on_r  && !prog_empty);
-   wire m_axis_tvalid;
-   assign s_axis_c2h_tvalid_0 = m_axis_tvalid; // &&  acq_on_r ; //m_axis_tvalid;
+   wire   m_axis_tready = s_axis_c2h_tready_0 ; // || ( !acq_on_r  && !prog_empty);
+   wire   m_axis_tvalid;
+   assign s_axis_c2h_tvalid_0 = m_axis_tvalid &&  acq_on_r ; //m_axis_tvalid;
         
    xpm_fifo_axis #(
       .CDC_SYNC_STAGES(3),            // DECIMAL Range: 2 - 8. Default value = 2.
