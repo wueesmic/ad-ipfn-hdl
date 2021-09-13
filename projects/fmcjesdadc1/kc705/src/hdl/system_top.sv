@@ -487,9 +487,11 @@ module system_top #
     wire prog_full, prog_empty;
 	wire [31:0] control_reg_i;
 
-    wire [31:0] status_reg_i = {control_reg_i[31:16],
-        6'h00, acq_on_r, 1'b0,
-        6'h00, prog_full, prog_empty};
+    wire [15:0] rd_data_count;
+    
+    wire [31:0] status_reg_i = {rd_data_count,
+        8'h00,
+        5'h00, acq_on_r, prog_full, prog_empty};
 
 
     shapi_regs_v1 # (
@@ -614,18 +616,13 @@ module system_top #
                     end
     end
 
-
-
      always @(posedge rx_clk or posedge sys_rst)
         if (sys_rst)
             adc_cnt <= 0;
         else if (adc_dma_tvalid)
             adc_cnt <= adc_cnt +1;
             
-   
-
-    
-   wire   m_axis_tready = s_axis_c2h_tready_0 ; // || ( !acq_on_r  && !prog_empty);
+   wire   m_axis_tready = s_axis_c2h_tready_0  || ( !acq_on_r ); // && !prog_empty);
    wire   m_axis_tvalid;
    assign s_axis_c2h_tvalid_0 = m_axis_tvalid &&  acq_on_r ; //m_axis_tvalid;
         
@@ -645,8 +642,8 @@ module system_top #
       .TDEST_WIDTH(1),                // DECIMAL
       .TID_WIDTH(1),                  // DECIMAL
       .TUSER_WIDTH(1),                // DECIMAL
-      .USE_ADV_FEATURES("0202"),      // String
-//      .USE_ADV_FEATURES("0E0E"),      // String
+//      .USE_ADV_FEATURES("0202"),      // String
+      .USE_ADV_FEATURES("0E0E"),      // String
       .WR_DATA_COUNT_WIDTH(16)         // DECIMAL
    )
    xpm_fifo_axis_c2h0_i (
@@ -713,7 +710,7 @@ module system_top #
                                                // the number of words in the FIFO is less than the programmable
                                                // full threshold value.
 
-      .rd_data_count_axis(), // RD_DATA_COUNT_WIDTH-bit output: Read Data Count- This bus
+      .rd_data_count_axis(rd_data_count), // RD_DATA_COUNT_WIDTH-bit output: Read Data Count- This bus
                                                // indicates the number of words available for reading in the
                                                // FIFO.
 
