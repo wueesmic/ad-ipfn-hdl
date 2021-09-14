@@ -47,7 +47,7 @@
 `define DEV_HW_VENDOR    16'h10EE       //offset_addr 0x08 Xilinx Vendor
 `define DEV_HW_ID        16'h7018
 `define DEV_FW_VENDOR    16'h1570       //offset_addr 0x0c
-`define DEV_FW_ID        16'h00321631556386
+`define DEV_FW_ID        16'h0032
 
 `define DEV_FW_PATCH     16'h0000       //offset_addr 0x10
 `define DEV_FW_MINOR     8'h00
