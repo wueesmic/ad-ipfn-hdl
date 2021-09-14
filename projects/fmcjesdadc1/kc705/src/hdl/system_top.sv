@@ -622,25 +622,28 @@ module system_top #
         else if (adc_dma_tvalid)
             adc_cnt <= adc_cnt +1;            
     
-   wire   m_axis_tready = s_axis_c2h_tready_0 || ( !acq_on_r  && prog_full);
+   wire   m_axis_tready = s_axis_c2h_tready_0 || ( !acq_on_r ) ;// && prog_full); // Flush MAIN buffer on ACQ disable
    wire   m_axis_tvalid;
-   assign s_axis_c2h_tvalid_0 = m_axis_tvalid &&  acq_on_r ; //m_axis_tvalid;
+   assign s_axis_c2h_tvalid_0 = m_axis_tvalid &&  acq_on_r ; // Stream only with ACQ enable
    
     wire [127:0] m_axis_tdata_pre;
-    wire m_axis_tready_pre, m_axis_valid_pre;
-    wire almost_full_axis_pre;
-//assign m_axis_valid_pre   
+    wire almost_full_axis_pre; 
+    wire s_axis_tready, s_axis_tvalid;
+    wire m_axis_tready_pre = s_axis_tready || ( (!acq_on_r) && almost_full_axis_pre ) ; // Fill  PRE  buffer on ACQ disable
+    wire m_axis_tvalid_pre;  
+    assign s_axis_tvalid = m_axis_tvalid_pre &&  acq_on_r ; // Fill Main only with ACQ enable
+    
 
    xpm_fifo_axis #(
       .CDC_SYNC_STAGES(2),            // DECIMAL Range: 2 - 8. Default value = 2.
       .CLOCKING_MODE("common_clock"), // String
       .ECC_MODE("no_ecc"),            // String
-      .FIFO_DEPTH(8192),              // DECIMAL 131072 65536  32768 16384 (65536 Max 4194304 bit?) ~0.5 ms ACQ
+      .FIFO_DEPTH(16384),              // DECIMAL 131072 65536  32768 16384  8192 (65536 Max 4194304 bit?) ~0.5 ms ACQ
       .FIFO_MEMORY_TYPE("auto"),      // String
       .PACKET_FIFO("false"),          // String
       .PROG_EMPTY_THRESH(3000),         // DECIMAL
       .PROG_FULL_THRESH(4000),       // DECIMAL 8- 32763
-      .RD_DATA_COUNT_WIDTH(14),        // DECIMAL
+      //.RD_DATA_COUNT_WIDTH(14),        // DECIMAL
       .RELATED_CLOCKS(0),             // DECIMAL
       .SIM_ASSERT_CHK(0),             // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
       .TDATA_WIDTH(128),               // DECIMAL Defines the width of the TDATA port, s_axis_tdata and m_axis_tdata
@@ -648,8 +651,8 @@ module system_top #
       .TID_WIDTH(1),                  // DECIMAL
       .TUSER_WIDTH(1),                // DECIMAL
 //      .USE_ADV_FEATURES("0202"),      // String
-      .USE_ADV_FEATURES("0E08"),      // String 
-      .WR_DATA_COUNT_WIDTH(14)         // DECIMAL log2(32768) + 1 = 16
+      .USE_ADV_FEATURES("0008") //,      // String 
+      //.WR_DATA_COUNT_WIDTH(15)         // DECIMAL log2(32768) + 1 = 16
    )
    xpm_fifo_axis_pre_trigg_i (
       .almost_empty_axis(),   // 1-bit output: Almost Empty : When asserted, this signal
@@ -873,7 +876,7 @@ module system_top #
                                                // indicates the number of words available for reading in the
                                                // FIFO.
 
-      .s_axis_tready(m_axis_tready_pre),           // 1-bit output: TREADY: Indicates that the slave can accept a
+      .s_axis_tready(s_axis_tready),           // 1-bit output: TREADY: Indicates that the slave can accept a
                                                // transfer in the current cycle.
 
       .sbiterr_axis(),             // 1-bit output: Single Bit Error- Indicates that the ECC
@@ -933,7 +936,7 @@ module system_top #
                                                // information that can be transmitted alongside the data
                                                // stream.
 
-      .s_axis_tvalid(m_axis_tvalid_pre)            // 1-bit input: TVALID: Indicates that the master is driving a
+      .s_axis_tvalid(s_axis_tvalid)            // 1-bit input: TVALID: Indicates that the master is driving a
                                                // valid transfer. A transfer takes place when both TVALID and
                                                // TREADY are asserted
 
