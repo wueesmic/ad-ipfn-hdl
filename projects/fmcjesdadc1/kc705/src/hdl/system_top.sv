@@ -118,8 +118,8 @@ module system_top #
   output                  spi_csn_0,
   output                  spi_clk,
   inout                   spi_sdio,
-  
-// IPFN mods   
+
+// IPFN mods
   //User SMA Clock
   output          user_sma_clk_p, // SMA J11
   output          user_sma_clk_n, // SMA J12
@@ -148,7 +148,7 @@ module system_top #
    localparam C_S_AXI_ADDR_WIDTH = 64;
    localparam C_M_AXI_ADDR_WIDTH = 64;
    localparam C_NUM_USR_IRQ      = 1;
-   
+
     localparam N_ADC_CHANNELS  = 4;
 
   // internal signals
@@ -168,18 +168,18 @@ module system_top #
 
 
   //wire    [13:0]      gpio_trigg_lvl = gpio_o[31:18]; // 14 bit GPIO lines 18 -31
-  
+
   assign ddr3_1_p = 2'b11;
   assign ddr3_1_n = 3'b000;
   assign fan_pwm = 1'b1;
   assign iic_rstn = 1'b1;
   assign spi_csn_0 = spi_csn[0];
-  
+
   //----------------------------------------------------------------------------------------------------------------//
    //  AXI Interface                                                                                                 //
    //----------------------------------------------------------------------------------------------------------------//
-   
-   
+
+
    wire 					   pci_user_clk;
    wire 					   pci_user_resetn;
 // PCIe XDMA
@@ -281,7 +281,9 @@ module system_top #
     wire [C_DATA_WIDTH/8-1:0] s_axis_c2h_tkeep_0;
 
 
-  // instantiations
+    wire [31:0] triglvl_0, trig_lvl_1, trig_lvl_2;
+    wire trigger0_i;
+    // instantiations
 
   IBUFDS_GTE2 i_ibufds_rx_ref_clk (
     .CEB (1'd0),
@@ -334,8 +336,6 @@ module system_top #
       // Rx
       .pci_exp_rxn     ( pci_exp_rxn ),
       .pci_exp_rxp     ( pci_exp_rxp ),
-
-
 
       // AXI streaming ports
       .s_axis_c2h_tdata_0(s_axis_c2h_tdata_0),
@@ -400,7 +400,7 @@ module system_top #
     );
 
   system_wrapper i_system_wrapper (
-  
+
       .adc_data_a (adc_data[0]),
       .adc_enable_a (adc_enable[0]),
       .adc_valid_a (adc_valid[0]),
@@ -412,8 +412,8 @@ module system_top #
       .adc_valid_c (adc_valid[2]),
       .adc_data_d (adc_data[3]),
       .adc_enable_d (adc_enable[3]),
-      .adc_valid_d (adc_valid[3]),  
-      
+      .adc_valid_d (adc_valid[3]),
+
      .ddr3_addr (ddr3_addr),
     .ddr3_ba (ddr3_ba),
     .ddr3_cas_n (ddr3_cas_n),
@@ -488,7 +488,7 @@ module system_top #
 	wire [31:0] control_reg_i;
 
     wire [15:0] rd_data_count;
-    
+
     wire [31:0] status_reg_i = {rd_data_count,
         8'h00,
         3'h0, acq_on_r, almost_full_axis, almost_empty_axis, prog_full, prog_empty};
@@ -521,9 +521,10 @@ module system_top #
           .S_AXI_RREADY(m_axil_rready),
 
            .status_reg(status_reg_i),
+           .trig_0(triglvl_0),
            .control_reg(control_reg_i)
     );
-
+/*
   trigger_gen i_trigger_gen (
     .adc_clk (rx_clk),
 
@@ -543,6 +544,8 @@ module system_top #
     .trig_reset(!gpio_o[9]), // First LED
     .trig_level_add(gpio_o[12:11]),
     .trig_level(gpio_o[55:40]),
+    .trig_lvl_0(triglvl_0),
+    .trig_lvl_1(triglvl_1),
     //.trig_level_a (gpio_trigg_lvl), // {2'b11, 16'h0FE0} < 18'h02000 / 18'd8192 = -200mV 18'h03000 = -320mV
     //.trig_level_b (gpio_trigg_lvl), // > {2'b00, 16'h0200}
 //    .trig_level_b ({2'b11, 16'h8000} ),  //,-2048
@@ -550,51 +553,83 @@ module system_top #
     .trigger0 (user_sma_clk_n), // user_sma_clk_p
     .trigger1 (user_sma_gpio_n) //J14
     );
+*/
+    trigger_gen i_trigger_gen (
+        .clk(rx_clk), // 125MHz
 
+        .adc_data_a (adc_data[0]),
+        .adc_enable_a (adc_enable[0]),
+        .adc_valid_a (adc_valid[0]),
+
+        .adc_data_b (adc_data[1]),
+        .adc_enable_b (adc_enable[1]),
+        .adc_valid_b (adc_valid[1]),
+
+        .adc_data_c (adc_data[2]),
+        .adc_enable_c (adc_enable[2]),
+        .adc_valid_c (adc_valid[2]),
+
+        .adc_data_d (adc_data[3]),
+        .adc_enable_d (adc_enable[3]),
+        .adc_valid_d (adc_valid[3]),
+
+        // Latency 480 ns ?
+        //Trigger levels are positive
+
+        .trig_enable(control_reg_i[`ACQE_BIT]), // bit 4 second gpio gpio_o[36]
+        .trig_level_arr(triglvl_0), //I [47:0]
+        //.trig_level_addr(gpio_o[12:11]),
+        //.trig_level_data(gpio_o[55:40]),
+        //.trig_level_wrt(gpio_o[13]),
+        .pulse_delay(), // O 
+
+        .trigger0 (trigger0_i), // user_sma_clk_n
+        .trigger1 () //J14trigger0_i
+    );
+   
     wire m_axis128_tvalid, m_axis128_tready;
     wire [127:0] m_axis128_data;
     wire m_axis64_tvalid, s_axis64_tready;
 
       // AXI streaming ports
-     
+
      reg [14:0] s_axis_c2h_cnt = 15'h00; // 15'h3FF;
-     
+
      always @(posedge pci_user_clk or negedge pci_user_resetn)
         if (!pci_user_resetn)
             s_axis_c2h_cnt <= 15'h00;
         else if (s_axis_c2h_tvalid_0 && s_axis_c2h_tready_0)
             s_axis_c2h_cnt <= s_axis_c2h_cnt +1;
 
-                        
-      assign s_axis_c2h_tlast_0 = (s_axis_c2h_cnt ==15'h3FF)? 1'b1:1'b0;// m_axis_h2c_tlast_0;   
 
-      //assign s_axis_c2h_tdata_0 =  m_axis_h2c_tdata_0;   
-      //assign s_axis_c2h_tlast_0 =  1'b0;// m_axis_h2c_tlast_0;   
-      //assign s_axis_c2h_tvalid_0 =  m_axis_h2c_tvalid_0;   
-      //assign s_axis_c2h_tkeep_0 =  8'hFF;// m_axis_h2c_tkeep_0;  
+      assign s_axis_c2h_tlast_0 = (s_axis_c2h_cnt ==15'h3FF)? 1'b1:1'b0;// m_axis_h2c_tlast_0;
+
+      //assign s_axis_c2h_tdata_0 =  m_axis_h2c_tdata_0;
+      //assign s_axis_c2h_tlast_0 =  1'b0;// m_axis_h2c_tlast_0;
+      //assign s_axis_c2h_tvalid_0 =  m_axis_h2c_tvalid_0;
+      //assign s_axis_c2h_tkeep_0 =  8'hFF;// m_axis_h2c_tkeep_0;
       // H2C dump
       assign m_axis_h2c_tready_0 = 1'b1;// s_axis_c2h_tready_0;
 /*
-  axis_dwidth_conv128_64_0 axis_dwidth_conv128_64_ins (  
-  .aresetn(aresetn),              // input wire aresetn  
-  .s_axis_tvalid(m_axis128_tvalid),  // input wire s_axis_tvalid 
-  .s_axis_tready(m_axis128_tready),  // output wire s_axis_tready                                            
+  axis_dwidth_conv128_64_0 axis_dwidth_conv128_64_ins (
+  .aresetn(aresetn),              // input wire aresetn
+  .s_axis_tvalid(m_axis128_tvalid),  // input wire s_axis_tvalid
+  .s_axis_tready(m_axis128_tready),  // output wire s_axis_tready
   .s_axis_tdata(m_axis128_data),    // input wire [127 : 0] s_axis_tdata
-  .m_axis_tvalid(s_axis_c2h_tvalid_0),  // output wire m_axis_tvalid  
-  .m_axis_tready(s_axis_c2h_tready_0),  // input wire m_axis_tready         
-  .m_axis_tdata(s_axis_c2h_tdata_0)    // output wire [63 : 0] m_axis_tdata 
-); 
+  .m_axis_tvalid(s_axis_c2h_tvalid_0),  // output wire m_axis_tvalid
+  .m_axis_tready(s_axis_c2h_tready_0),  // input wire m_axis_tready
+  .m_axis_tdata(s_axis_c2h_tdata_0)    // output wire [63 : 0] m_axis_tdata
+);
 
-*/  
-    reg [31:0] adc_cnt = 32'h00; 
-    wire [31:0] adc_data3  = adc_data[3];                                                        
-    wire [C_S_AXI_DATA_WIDTH-1:0] adc_data_all = {adc_cnt, adc_data[2], adc_data[1], adc_data[0]}; 
-    wire  adc_dma_tvalid = adc_enable[0]; // && trigger0_i; //&& adc_valid[0] Write DMA FIFO only after trigger 0  
+*/
+    reg [31:0] adc_cnt = 32'h00;
+    wire [31:0] adc_data3  = adc_data[3];
+    wire [C_S_AXI_DATA_WIDTH-1:0] adc_data_all = {adc_cnt, adc_data[2], adc_data[1], adc_data[0]};
+    wire  adc_dma_tvalid = adc_enable[0]; // && trigger0_i; //&& adc_valid[0] Write DMA FIFO only after trigger 0
 
 
-    
     reg [1:0] soft_trig_dly;
-    //reg [1:0] hard_trig_dly;
+    reg [1:0] hard_trig_dly;
 
 // Trigger generation
     always @(posedge pci_user_clk or negedge control_reg_i[`ACQE_BIT]) begin
@@ -602,17 +637,17 @@ module system_top #
                     begin
                         acq_on_r <= #TCQ  1'b0;
                         soft_trig_dly <=  #TCQ 2'b11;
-                        //hard_trig_dly <=  #TCQ 2'b00;
+                        hard_trig_dly <=  #TCQ 2'b00;
                     end
                 else
                     begin
                          soft_trig_dly <=  #TCQ  {soft_trig_dly[0], control_reg_i[`STRG_BIT]}; // delay pipe
-                         //hard_trig_dly <=  #TCQ  {hard_trig_dly[0], hard_trigger_rcv}; // delay pipe
+                         hard_trig_dly <=  #TCQ  {hard_trig_dly[0], trigger0_i}; // delay pipe
 
                          if(soft_trig_dly == 2'b01) // detect rising edge
                                 acq_on_r <= #TCQ  1'b1;
-                         //if(hard_trig_dly == 2'b10) // detect falling  edge
-                         //       acq_on_r <= #TCQ  1'b1;
+                         if(hard_trig_dly == 2'b10) // detect falling  edge
+                                acq_on_r <= #TCQ  1'b1;
                     end
     end
 
@@ -620,19 +655,19 @@ module system_top #
         if (sys_rst)
             adc_cnt <= 0;
         else if (adc_dma_tvalid)
-            adc_cnt <= adc_cnt +1;            
-    
+            adc_cnt <= adc_cnt +1;
+
    wire   m_axis_tready = s_axis_c2h_tready_0 || ( !acq_on_r ) ;// && prog_full); // Flush MAIN buffer on ACQ disable
    wire   m_axis_tvalid;
    assign s_axis_c2h_tvalid_0 = m_axis_tvalid &&  acq_on_r ; // Stream only with ACQ enable
-   
+
     wire [127:0] m_axis_tdata_pre;
-    wire almost_full_axis_pre; 
+    wire almost_full_axis_pre;
     wire s_axis_tready, s_axis_tvalid;
     wire m_axis_tready_pre = s_axis_tready || ( (!acq_on_r) && almost_full_axis_pre ) ; // Fill  PRE  buffer on ACQ disable
-    wire m_axis_tvalid_pre;  
+    wire m_axis_tvalid_pre;
     assign s_axis_tvalid = m_axis_tvalid_pre &&  acq_on_r ; // Fill Main only with ACQ enable
-    
+
 
    xpm_fifo_axis #(
       .CDC_SYNC_STAGES(2),            // DECIMAL Range: 2 - 8. Default value = 2.
@@ -651,7 +686,7 @@ module system_top #
       .TID_WIDTH(1),                  // DECIMAL
       .TUSER_WIDTH(1),                // DECIMAL
 //      .USE_ADV_FEATURES("0202"),      // String
-      .USE_ADV_FEATURES("0008") //,      // String 
+      .USE_ADV_FEATURES("0008") //,      // String
       //.WR_DATA_COUNT_WIDTH(15)         // DECIMAL log2(32768) + 1 = 16
    )
    xpm_fifo_axis_pre_trigg_i (
@@ -787,7 +822,7 @@ module system_top #
                                                // TREADY are asserted
 
    );
-        
+
    xpm_fifo_axis #(
       .CDC_SYNC_STAGES(3),            // DECIMAL Range: 2 - 8. Default value = 2.
       .CLOCKING_MODE("independent_clock"), // String
@@ -941,8 +976,8 @@ module system_top #
                                                // TREADY are asserted
 
    );
-    
-				
+
+
 endmodule
 
 // ***************************************************************************
