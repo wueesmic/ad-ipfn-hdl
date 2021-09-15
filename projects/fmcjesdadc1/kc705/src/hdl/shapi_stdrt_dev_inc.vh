@@ -18,8 +18,8 @@
 // Creation Date  2017-11-09
 //
 // Licensed under the EUPL, Version 1.2 or - as soon they
-// will be approved by the European Commission - subsequent
-// versions of the EUPL (the "Licence");
+// will be approved by the European Commission 
+//subsequent versions of the EUPL (the "Licence");
 // You may not use this work except in compliance with the
 // Licence.
 // You may obtain a copy of the Licence at:
@@ -54,8 +54,8 @@
 `define DEV_FW_MAJOR     8'h01
 
 // Use Linux command: date +%s to get UNIX timestamp
-`define DEV_TSTAMP      32'd1631556386
-//Mon 13 Sep 2021 07:06:28 PM WEST
+`define DEV_TSTAMP      32'd1631728037
+//Wed 15 Sep 2021 06:47:19 PM WEST
 
 `define DEV_NAME1         "1cdA" // first char right1631556386
 `define DEV_NAME2         "girT"

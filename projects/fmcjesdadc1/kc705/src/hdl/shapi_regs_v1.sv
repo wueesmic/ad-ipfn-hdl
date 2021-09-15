@@ -141,9 +141,9 @@ module shapi_regs_v1 #
 
     /********IPFN reg ***********/
 
-    reg   [31:0]     control_r;
+    reg   [31:0]     control_r = 32'h00;
     reg   [31:0]     trig0_r, trig1_r, trig2_r;
-    reg   [31:0]     param0_r, param1_r;
+    reg   [31:0]     param0_r =32'h0001_0000, param1_r = 32'h0001_0000;
     
     assign trig_0 = trig0_r;
     assign trig_1 = trig1_r;
@@ -186,8 +186,6 @@ module shapi_regs_v1 #
     localparam  MOD_INTERRUPT_ACTIVE = 32'h0;     //offset_addr 0x38
 
 
-
-
     /*********************/
     // AXI4LITE signals
     reg [C_S_AXI_ADDR_WIDTH-1 : 0]  axi_awaddr;
@@ -215,15 +213,6 @@ module shapi_regs_v1 #
     //reg [C_S_AXI_DATA_WIDTH-1:0]  slv_reg15;
     //reg [C_S_AXI_DATA_WIDTH-1:0]  slv_reg89;
     //  reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg127;
-    reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg41;
-    reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg42;
-    reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg43;
-    reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg44;
-    reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg45;
-    reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg46;
-    reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg47;
-    reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg48;
-    reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg49;
     reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg50;
     reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg51;
     reg [C_S_AXI_DATA_WIDTH-1:0]    slv_reg52;
@@ -359,15 +348,6 @@ module shapi_regs_v1 #
             param0_r        <=  32'h0001_0000;
             param1_r        <=  32'h0001_0000;
 
-            slv_reg41 <= 0;
-            slv_reg42 <= 0;
-            slv_reg43 <= 0;
-            slv_reg44 <= 0;
-            slv_reg45 <= 0;
-            slv_reg46 <= 0;
-            slv_reg47 <= 0;
-            slv_reg48 <= 0;
-            slv_reg49 <= 0;
             slv_reg50 <= 0;
             slv_reg51 <= 0;
             slv_reg52 <= 0;
@@ -379,11 +359,11 @@ module shapi_regs_v1 #
             if (slv_reg_wren)
             begin
                 case ( axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
-                    6'h0F: dev_scratch_reg <= S_AXI_WDATA; // BAR 0 regs
+                    6'h0F: dev_scratch_reg <= S_AXI_WDATA; // BAR 0 regsmod_interrupt_mask
 
                     (`MOD_DMA_REG_OFF + 6'h08): mod_control_r  <= S_AXI_WDATA[31:30];
                     (`MOD_DMA_REG_OFF + 6'h0A): mod_interrupt_flag_clear_r  <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h0B): mod_interrupt_mask_r        <= S_AXI_WDATA;
+                    (`MOD_DMA_REG_OFF + 6'h0B): mod_interrupt_mask        <= S_AXI_WDATA;
                     //(`MOD_DMA_REG_OFF + 6'h09):
                     //(`MOD_DMA_REG_OFF + 6'h10): slv_reg32             <= S_AXI_WDATA;
                     (`MOD_DMA_REG_OFF + 6'h11): control_r             <= S_AXI_WDATA;
@@ -410,15 +390,6 @@ module shapi_regs_v1 #
                         //
                         //(`MOD_DMA_REG_OFF + 6'h15): dma_prog_thresh_r     <= post_wr_data[20:5]; // DMA Byte Size
                         default : begin
-                            slv_reg41 <= slv_reg41;
-                            slv_reg42 <= slv_reg42;
-                            slv_reg43 <= slv_reg43;
-                            slv_reg44 <= slv_reg44;
-                            slv_reg45 <= slv_reg45;
-                            slv_reg46 <= slv_reg46;
-                            slv_reg47 <= slv_reg47;
-                            slv_reg48 <= slv_reg48;
-                            slv_reg49 <= slv_reg49;
                             slv_reg50 <= slv_reg50;
                             slv_reg51 <= slv_reg51;
                             slv_reg52 <= slv_reg52;
