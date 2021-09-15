@@ -282,6 +282,8 @@ module system_top #
 
 
     wire [31:0] triglvl_0, trig_lvl_1, trig_lvl_2;
+    wire [31:0] param_mul_i, param_off_i, pulse_tof_i;
+    
     wire trigger0_i;
     // instantiations
 
@@ -522,9 +524,30 @@ module system_top #
 
            .status_reg(status_reg_i),
            .trig_0(triglvl_0),
+           .trig_1(triglvl_1),  //=
+           .trig_2(triglvl_2),
+           .param_mul(param_mul_i),
+           .param_off(param_off_i),
+           .pulse_tof(pulse_tof_i),
+           
            .control_reg(control_reg_i)
     );
 /*
+
+        output      [31:0]  param_mul,
+        output      [31:0]  param_off,
+        input       [31:0]  wait_cnt,
+
+        output      [31:0]  param_off,
+        input       [31:0]  wait_cnt,
+
+        output      [31:0]  trig_0,
+        output      [31:0]  trig_1,
+        output      [31:0]  trig_2,
+        output      [31:0]  param_0,
+        output      [31:0]  param_1,
+        input       [31:0]  wait_cnt,
+
   trigger_gen i_trigger_gen (
     .adc_clk (rx_clk),
 
@@ -538,7 +561,12 @@ module system_top #
 
     // Latency 480 ns ?
     //Trigger levels are positive
-//    .trig_level_a ({2'b11, 16'hF000} ), // < 18'h02000 / 18'd8192 = -200mV 18'h03000 = -320mV
+//    .trig_level_a ({2'b11, 16'hF000} ), // < 18'h02000            .trig_0(triglvl_0),
+           .trig_1(triglvl_1),
+           .trig_2(triglvl_2),
+           .param_mul(param_mul_i),
+           .param_off(param_off_i),
+/ 18'd8192 = -200mV 18'h03000 = -320mV
 //    .trig_level_b ({2'b00, 16'h1000} ), // >
 
     .trig_reset(!gpio_o[9]), // First LED
@@ -561,7 +589,8 @@ module system_top #
         .adc_enable_a (adc_enable[0]),
         .adc_valid_a (adc_valid[0]),
 
-        .adc_data_b (adc_data[1]),
+        .adc_data_b (adc_data[1]), 
+
         .adc_enable_b (adc_enable[1]),
         .adc_valid_b (adc_valid[1]),
 
@@ -577,11 +606,14 @@ module system_top #
         //Trigger levels are positive
 
         .trig_enable(control_reg_i[`ACQE_BIT]), // bit 4 second gpio gpio_o[36]
-        .trig_level_arr(triglvl_0), //I [47:0]
-        //.trig_level_addr(gpio_o[12:11]),
-        //.trig_level_data(gpio_o[55:40]),
-        //.trig_level_wrt(gpio_o[13]),
-        .pulse_delay(), // O 
+
+       .trig_level_a(triglvl_0),
+       .trig_level_b(triglvl_1),  //I
+       .trig_level_c(triglvl_2),
+       .param_mul(param_mul_i),
+       .param_off(param_off_i),
+       
+       .pulse_tof(pulse_tof_i), //O
 
         .trigger0 (trigger0_i), // user_sma_clk_n
         .trigger1 () //J14trigger0_i
@@ -632,22 +664,23 @@ module system_top #
     reg [1:0] hard_trig_dly;
 
 // Trigger generation
+    wire acq_en_i = control_reg_i[`ACQE_BIT];
     always @(posedge pci_user_clk or negedge control_reg_i[`ACQE_BIT]) begin
         if (!control_reg_i[`ACQE_BIT])
                     begin
                         acq_on_r <= #TCQ  1'b0;
                         soft_trig_dly <=  #TCQ 2'b11;
-                        hard_trig_dly <=  #TCQ 2'b00;
+                        hard_trig_dly <=  #TCQ 2'b11;
                     end
                 else
                     begin
                          soft_trig_dly <=  #TCQ  {soft_trig_dly[0], control_reg_i[`STRG_BIT]}; // delay pipe
                          hard_trig_dly <=  #TCQ  {hard_trig_dly[0], trigger0_i}; // delay pipe
 
-                         if(soft_trig_dly == 2'b01) // detect rising edge
+                         if( (soft_trig_dly == 2'b01) ||  (hard_trig_dly == 2'b01)) // 
                                 acq_on_r <= #TCQ  1'b1;
-                         if(hard_trig_dly == 2'b10) // detect falling  edge
-                                acq_on_r <= #TCQ  1'b1;
+//                         if(hard_trig_dly == 2'b10) // detect falling  edge
+//                                acq_on_r <= #TCQ  1'b1;
                     end
     end
 

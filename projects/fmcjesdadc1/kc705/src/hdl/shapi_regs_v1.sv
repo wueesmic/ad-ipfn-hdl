@@ -129,8 +129,10 @@ module shapi_regs_v1 #
         output      [31:0]  trig_0,
         output      [31:0]  trig_1,
         output      [31:0]  trig_2,
-        output      [31:0]  param_0,
-        output      [31:0]  param_1,
+        output      [31:0]  param_mul,
+        output      [31:0]  param_off,
+        input       [31:0]  pulse_tof,
+        
         input       [31:0]  status_reg,
         output      [31:0]  control_reg
 
@@ -142,7 +144,13 @@ module shapi_regs_v1 #
     reg   [31:0]     control_r;
     reg   [31:0]     trig0_r, trig1_r, trig2_r;
     reg   [31:0]     param0_r, param1_r;
-
+    
+    assign trig_0 = trig0_r;
+    assign trig_1 = trig1_r;
+    assign trig_2 = trig2_r;
+    assign param_mul = param0_r;
+    assign param_off = param1_r;
+    assign control_reg = control_r;
 
     //#### STANDARD DEVICE  ######//
     wire        dev_endian_status = control_r[10];  // 1'b0;        //offset_addr 0x28 '0' - little-endian format.
@@ -177,10 +185,7 @@ module shapi_regs_v1 #
     localparam  MOD_INTERRUPT_FLAG   = 32'h0; //mod1_interrupt_mask;                //offset_addr 0x34
     localparam  MOD_INTERRUPT_ACTIVE = 32'h0;     //offset_addr 0x38
 
-    assign control_reg = control_r;
-    assign trig_0 = trig0_r;
-    assign trig_1 = trig1_r;
-    assign trig_2 = trig2_r;
+
 
 
     /*********************/
@@ -349,8 +354,8 @@ module shapi_regs_v1 #
             dev_scratch_reg <=  32'hBB;
             dev_control_r   <= 31'h0;
             control_r       <=  32'h00;
-            trig0_r         <=  32'h00F0_8000; // +240 / -16385
-            trig1_r         <=  32'h00F0_8000;
+            trig0_r         <=  32'h0400_8000; // +1024 / -16385
+            trig1_r         <=  32'h0400_8000;
             param0_r        <=  32'h0001_0000;
             param1_r        <=  32'h0001_0000;
 
@@ -537,7 +542,7 @@ module shapi_regs_v1 #
     begin
         // Address decoding for reading registers
         case ( axi_araddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
-            //BAR 1 addresses
+            //BAR 1 addresses125000000
             6'h00 : reg_data_out = {`DEV_MAGIC,`DEV_MAJOR, `DEV_MINOR}; // BAR1 access
             6'h01 : reg_data_out = {`DEV_NEXT_ADDR};
             6'h02 : reg_data_out = {`DEV_HW_ID,`DEV_HW_VENDOR};
@@ -576,6 +581,7 @@ module shapi_regs_v1 #
             (`MOD_DMA_REG_OFF + 6'h14): reg_data_out <= #TCQ trig2_r; // rw
             (`MOD_DMA_REG_OFF + 6'h15): reg_data_out <= #TCQ param0_r; // rw
             (`MOD_DMA_REG_OFF + 6'h16): reg_data_out <= #TCQ param1_r; // rw
+            (`MOD_DMA_REG_OFF + 6'h20): reg_data_out <= #TCQ pulse_tof; // ro
 
             /**
                 (`MOD_DMA_REG_OFF + 6'h12): reg_data_out <= #TCQ chopp_period_r;// rw
