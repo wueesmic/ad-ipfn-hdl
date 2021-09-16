@@ -3,18 +3,15 @@
 // Engineer: BBC
 //
 // Create Date: 05/08/2021 07:21:01 PM
-// Design Name:
+// Design Name: shapi_regs_v1
 // Module Name: shapi_regs_v1
-// Project Name:
+// Project Name: Esther Trigger System
 // Target Devices: kintex-7
-// Tool Versions:  Vivado 2019.1
-// Description: Creates data packages for xdma engine in 32 /16 data format
-// also computes Intergal of adc signal, the "F" function algorithm an
-// derivative.
+// Tool Versions:  Vivado 2019.2
+// Description: BAR0 register accordind to SHAPI Standard
 //
-// Dependencies:
+// Dependencies: shapi_stdrt_dev_inc.vh
 //
-// Revision:
 // Revision 0.01 - File Created
 // Additional Comments:
 // Copyright 2015 - 2021 IPFN-Instituto Superior Tecnico, Portugal
@@ -42,7 +39,6 @@
 
 `timescale 1 ns / 1 ps
 `include "shapi_stdrt_dev_inc.vh"
-
 module shapi_regs_v1 #
     (
         // Users to add parameters here
@@ -171,7 +167,7 @@ module shapi_regs_v1 #
 
 
     //#### MODULE REGISTERS ######//
-    wire [63:0] mod_name = `MOD_DMA_NAME; // Two words
+    wire [63:0] mod_name = `MOD_TRIG_NAME; // Two words
 
     reg [31:30]  mod_control_r = 2'h0;
     wire   mod_soft_rst_control = mod_control_r[`MOD_CNTRL_SFT_RST_BIT];       //offset_addr 0x2c
@@ -344,7 +340,8 @@ module shapi_regs_v1 #
             dev_control_r   <= 31'h0;
             control_r       <=  32'h00;
             trig0_r         <=  32'h0400_8000; // +1024 / -16385
-            trig1_r         <=  32'h0400_8000;
+            trig1_r         <=  32'h0400_8000; // +1024 / -16385
+            trig2_r         <=  32'h0400_8000;
             param0_r        <=  32'h0001_0000;
             param1_r        <=  32'h0001_0000;
 
@@ -361,34 +358,34 @@ module shapi_regs_v1 #
                 case ( axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB] )
                     6'h0F: dev_scratch_reg <= S_AXI_WDATA; // BAR 0 regsmod_interrupt_mask
 
-                    (`MOD_DMA_REG_OFF + 6'h08): mod_control_r  <= S_AXI_WDATA[31:30];
-                    (`MOD_DMA_REG_OFF + 6'h0A): mod_interrupt_flag_clear_r  <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h0B): mod_interrupt_mask        <= S_AXI_WDATA;
-                    //(`MOD_DMA_REG_OFF + 6'h09):
-                    //(`MOD_DMA_REG_OFF + 6'h10): slv_reg32             <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h11): control_r             <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h12): trig0_r               <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h13): trig1_r               <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h14): trig2_r               <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h15): param0_r             <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h16): param1_r             <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h08): mod_control_r  <= S_AXI_WDATA[31:30];
+                    (`MOD_TRIG_REG_OFF + 6'h0A): mod_interrupt_flag_clear_r  <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h0B): mod_interrupt_mask_r        <= S_AXI_WDATA;
+                    //(`MOD_TRIG_REG_OFF + 6'h09):
+                    //(`MOD_TRIG_REG_OFF + 6'h10): slv_reg32             <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h11): control_r             <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h12): trig0_r               <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h13): trig1_r               <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h14): trig2_r               <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h15): param0_r             <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h16): param1_r             <= S_AXI_WDATA;
                     /*
-                    //(`MOD_DMA_REG_OFF + 6'h17): slv_reg39             <= S_AXI_WDATA;
-                    //(`MOD_DMA_REG_OFF + 6'h18): slv_reg40             <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h19): slv_reg41             <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h1A): slv_reg42             <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h1B): slv_reg43             <= S_AXI_WDATA;
-                    (`MOD_DMA_REG_OFF + 6'h1C): slv_reg44             <= S_AXI_WDATA;
+                    //(`MOD_TRIG_REG_OFF + 6'h17): slv_reg39             <= S_AXI_WDATA;
+                    //(`MOD_TRIG_REG_OFF + 6'h18): slv_reg40             <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h19): slv_reg41             <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h1A): slv_reg42             <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h1B): slv_reg43             <= S_AXI_WDATA;
+                    (`MOD_TRIG_REG_OFF + 6'h1C): slv_reg44             <= S_AXI_WDATA;
                     */
-                    //                    (`MOD_DMA_REG_OFF + 6'h12): dma_size_r            <= S_AXI_WDATA[23:0]; // DMA Byte Size
-                    //            (`MOD_DMA_REG_OFF + 6'h13): dma_prog_thresh_r     <= S_AXI_WDATA[23:5]; // DMA Byte Size
+                    //                    (`MOD_TRIG_REG_OFF + 6'h12): dma_size_r            <= S_AXI_WDATA[23:0]; // DMA Byte Size
+                    //            (`MOD_TRIG_REG_OFF + 6'h13): dma_prog_thresh_r     <= S_AXI_WDATA[23:5]; // DMA Byte Size
                     /**
-                        (`MOD_DMA_REG_OFF + 6'h69): ilck_param_r[319:288]  <= S_AXI_WDATA;
+                        (`MOD_TRIG_REG_OFF + 6'h69): ilck_param_r[319:288]  <= S_AXI_WDATA;
 
                         */
 
                         //
-                        //(`MOD_DMA_REG_OFF + 6'h15): dma_prog_thresh_r     <= post_wr_data[20:5]; // DMA Byte Size
+                        //(`MOD_TRIG_REG_OFF + 6'h15): dma_prog_thresh_r     <= post_wr_data[20:5]; // DMA Byte Size
                         default : begin
                             slv_reg50 <= slv_reg50;
                             slv_reg51 <= slv_reg51;
@@ -529,36 +526,37 @@ module shapi_regs_v1 #
 
             6'h0F : reg_data_out = dev_scratch_reg;
 
-            (`MOD_DMA_REG_OFF + 6'h00): reg_data_out <= #TCQ {`MOD_DMA_MAGIC,`MOD_DMA_MAJOR,`MOD_DMA_MINOR};
-            (`MOD_DMA_REG_OFF + 6'h01): reg_data_out <= #TCQ {`MOD_DMA_NEXT_ADDR};
-            (`MOD_DMA_REG_OFF + 6'h02): reg_data_out <= #TCQ {`MOD_DMA_FW_ID,`MOD_DMA_FW_VENDOR};
-            (`MOD_DMA_REG_OFF + 6'h03): reg_data_out <= #TCQ {`MOD_DMA_FW_MAJOR,`MOD_DMA_FW_MINOR,`MOD_DMA_FW_PATCH};
-            (`MOD_DMA_REG_OFF + 6'h04): reg_data_out <= #TCQ mod_name[31:0];
-            (`MOD_DMA_REG_OFF + 6'h05): reg_data_out <= #TCQ mod_name[63:32];
-            (`MOD_DMA_REG_OFF + 6'h06): reg_data_out <= #TCQ {`MOD_DMA_FULL_RST_CAPAB,`MOD_DMA_SOFT_RST_CAPAB,26'h0,`MOD_DMA_RTM_CAPAB,`MOD_DMA_MULTI_INT}; // Module Capabilities - ro
+            (`MOD_TRIG_REG_OFF + 6'h00): reg_data_out <= #TCQ {`MOD_TRIG_MAGIC,`MOD_TRIG_MAJOR,`MOD_TRIG_MINOR};
+            (`MOD_TRIG_REG_OFF + 6'h01): reg_data_out <= #TCQ {`MOD_TRIG_NEXT_ADDR};
+            (`MOD_TRIG_REG_OFF + 6'h02): reg_data_out <= #TCQ {`MOD_TRIG_FW_ID,`MOD_TRIG_FW_VENDOR};
+            (`MOD_TRIG_REG_OFF + 6'h03): reg_data_out <= #TCQ {`MOD_TRIG_FW_MAJOR,`MOD_TRIG_FW_MINOR,`MOD_TRIG_FW_PATCH};
+            (`MOD_TRIG_REG_OFF + 6'h04): reg_data_out <= #TCQ mod_name[31:0];
+            (`MOD_TRIG_REG_OFF + 6'h05): reg_data_out <= #TCQ mod_name[63:32];
+            (`MOD_TRIG_REG_OFF + 6'h06): reg_data_out <= #TCQ {`MOD_TRIG_FULL_RST_CAPAB,`MOD_TRIG_SOFT_RST_CAPAB,26'h0,`MOD_TRIG_RTM_CAPAB,`MOD_TRIG_MULTI_INT}; // Module Capabilities - ro
 
-            (`MOD_DMA_REG_OFF + 6'h07): reg_data_out <= #TCQ {MOD_FULL_RST_STATUS,  MOD_SOFT_RST_STATUS, 30'h0};  // Module Status - ro
-            (`MOD_DMA_REG_OFF + 6'h08): reg_data_out <= #TCQ {mod_full_rst_control, mod_soft_rst_control, 30'h0}; // Module Control rw
-            (`MOD_DMA_REG_OFF + 6'h09): reg_data_out <= #TCQ `MOD_DMA_INTERRUPT_ID; // rw
-            (`MOD_DMA_REG_OFF + 6'h0A): reg_data_out <= #TCQ  mod_interrupt_flag_clear_r; // rw
-            (`MOD_DMA_REG_OFF + 6'h0B): reg_data_out <= #TCQ  mod_interrupt_mask_r; // rw
-            (`MOD_DMA_REG_OFF + 6'h0C): reg_data_out <= #TCQ  MOD_INTERRUPT_FLAG; // ro
-            (`MOD_DMA_REG_OFF + 6'h0D): reg_data_out <= #TCQ  MOD_INTERRUPT_ACTIVE; // ro
+            (`MOD_TRIG_REG_OFF + 6'h07): reg_data_out <= #TCQ {MOD_FULL_RST_STATUS,  MOD_SOFT_RST_STATUS, 30'h0};  // Module Status - ro
+            (`MOD_TRIG_REG_OFF + 6'h08): reg_data_out <= #TCQ {mod_full_rst_control, mod_soft_rst_control, 30'h0}; // Module Control rw
+            (`MOD_TRIG_REG_OFF + 6'h09): reg_data_out <= #TCQ `MOD_TRIG_INTERRUPT_ID; // rw
+            (`MOD_TRIG_REG_OFF + 6'h0A): reg_data_out <= #TCQ  mod_interrupt_flag_clear_r; // rw
+            (`MOD_TRIG_REG_OFF + 6'h0B): reg_data_out <= #TCQ  mod_interrupt_mask_r; // rw
+            (`MOD_TRIG_REG_OFF + 6'h0C): reg_data_out <= #TCQ  MOD_INTERRUPT_FLAG; // ro
+            (`MOD_TRIG_REG_OFF + 6'h0D): reg_data_out <= #TCQ  MOD_INTERRUPT_ACTIVE; // ro
             // ....2
-            (`MOD_DMA_REG_OFF + 6'h10): reg_data_out <= #TCQ status_reg; // ro
-            (`MOD_DMA_REG_OFF + 6'h11): reg_data_out <= #TCQ control_r; // rw
-            (`MOD_DMA_REG_OFF + 6'h12): reg_data_out <= #TCQ trig0_r; // rw
-            (`MOD_DMA_REG_OFF + 6'h13): reg_data_out <= #TCQ trig1_r; // rw
-            (`MOD_DMA_REG_OFF + 6'h14): reg_data_out <= #TCQ trig2_r; // rw
-            (`MOD_DMA_REG_OFF + 6'h15): reg_data_out <= #TCQ param0_r; // rw
-            (`MOD_DMA_REG_OFF + 6'h16): reg_data_out <= #TCQ param1_r; // rw
-            (`MOD_DMA_REG_OFF + 6'h20): reg_data_out <= #TCQ pulse_tof; // ro
+            (`MOD_TRIG_REG_OFF + 6'h10): reg_data_out <= #TCQ status_reg; // ro
+            (`MOD_TRIG_REG_OFF + 6'h11): reg_data_out <= #TCQ control_r; // rw
+            (`MOD_TRIG_REG_OFF + 6'h12): reg_data_out <= #TCQ trig0_r; // rw
+            (`MOD_TRIG_REG_OFF + 6'h13): reg_data_out <= #TCQ trig1_r; // rw
+            (`MOD_TRIG_REG_OFF + 6'h14): reg_data_out <= #TCQ trig2_r; // rw
+            (`MOD_TRIG_REG_OFF + 6'h15): reg_data_out <= #TCQ param0_r; // rw
+            (`MOD_TRIG_REG_OFF + 6'h16): reg_data_out <= #TCQ param1_r; // rw
+            (`MOD_TRIG_REG_OFF + 6'h20): reg_data_out <= #TCQ pulse_tof; // ro
+            (`MOD_TRIG_REG_OFF + 6'h21): reg_data_out <= #TCQ 32'hA5A5; //pulse_tof; // ro
 
             /**
-                (`MOD_DMA_REG_OFF + 6'h12): reg_data_out <= #TCQ chopp_period_r;// rw
-                //            (`MOD_DMA_REG_OFF + 6'h12): reg_data_out <= #TCQ {8'b0, dma_size_r}; // rw
-                (`MOD_DMA_REG_OFF + 6'h13): reg_data_out <= #TCQ {`MOD_DMA_MAX_BYTES} ; // ro
-                (`MOD_DMA_REG_OFF + 6'h14): reg_data_out <= #TCQ {`MOD_DMA_TLP_PAYLOAD}; // ro
+                (`MOD_TRIG_REG_OFF + 6'h12): reg_data_out <= #TCQ chopp_period_r;// rw
+                //            (`MOD_TRIG_REG_OFF + 6'h12): reg_data_out <= #TCQ {8'b0, dma_size_r}; // rw
+                (`MOD_TRIG_REG_OFF + 6'h13): reg_data_out <= #TCQ {`MOD_TRIG_MAX_BYTES} ; // ro
+                (`MOD_TRIG_REG_OFF + 6'h14): reg_data_out <= #TCQ {`MOD_TRIG_TLP_PAYLOAD}; // ro
 
                 */
                 default : reg_data_out <= 0;

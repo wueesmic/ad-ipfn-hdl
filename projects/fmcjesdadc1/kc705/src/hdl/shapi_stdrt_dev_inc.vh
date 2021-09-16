@@ -7,14 +7,14 @@
 // Design Name:
 // Module Name:    shapi_stdrt_dev_inc
 // Target Devices:
-// Tool versions:  Vivado 2019.1
+// Tool versions:  Vivado 2019.2
 //
 // Description:
 // Verilog Header
-// SHAPI registers - standard device
+// SHAPI registers - standard device definitions
 //
 //
-// Copyright 2015 - 2017 IPFN-Instituto Superior Tecnico, Portugal
+// Copyright 2015 - 2021 IPFN-Instituto Superior Tecnico, Portugal
 // Creation Date  2017-11-09
 //
 // Licensed under the EUPL, Version 1.2 or - as soon they
@@ -33,7 +33,7 @@
 // express or implied.
 // See the Licence for the specific language governing
 // permissions and limitations under the Licence.
-//16016618571631556386
+
 `ifndef _shapi_stdrt_dev_inc_vh_
 `define _shapi_stdrt_dev_inc_vh_
 
@@ -54,9 +54,8 @@
 `define DEV_FW_MAJOR     8'h01
 
 // Use Linux command: date +%s to get UNIX timestamp
-`define DEV_TSTAMP      32'd1631728037
-//Wed 15 Sep 2021 06:47:19 PM WEST
-
+`define DEV_TSTAMP      32'd1631808082
+//Thu 16 Sep 2021 05:01:24 PM WEST
 `define DEV_NAME1         "1cdA" // first char right1631556386
 `define DEV_NAME2         "girT"
 `define DEV_NAME3         "htsE"
@@ -70,31 +69,31 @@
 `define DEV_CNTRL_SFT_RST_BIT  30
 `define DEV_CNTRL_ENDIAN_BIT   0
 
-`define MOD_DMA_REG_OFF    8'h10         // Base address of Module Device
+`define MOD_TRIG_REG_OFF    8'h10         // Base address of Module Device
 
 //#### MODULE DMA MODULE REGISTERS ######//
-`define MOD_DMA_MAGIC      16'h534D       //offset_addr dev_mod1_addr
-`define MOD_DMA_MAJOR      8'h01
-`define MOD_DMA_MINOR      8'h00
-`define MOD_DMA_NEXT_ADDR  32'h00         //offset_addr dev_mod1_addr+0x04
-`define MOD_DMA_FW_VENDOR  16'h1570       //offset_addr dev_mod1_addr+0x08
-`define MOD_DMA_FW_ID      16'h0076
-`define MOD_DMA_FW_PATCH   16'h0003       //offset_addr dev_mod1_addr+0x0c
-`define MOD_DMA_FW_MINOR   8'h00
-`define MOD_DMA_FW_MAJOR   8'h01
-`define MOD_DMA_NAME       "kAdoMamD" // 64'h44_6D_61_4D_6F_64_41_6B //  DmaModAk
+`define MOD_TRIG_MAGIC      16'h534D       //offset_addr dev_mod1_addr
+`define MOD_TRIG_MAJOR      8'h01
+`define MOD_TRIG_MINOR      8'h00
+`define MOD_TRIG_NEXT_ADDR  32'h00         //offset_addr dev_mod1_addr+0x04
+`define MOD_TRIG_FW_VENDOR  16'h1570       //offset_addr dev_mod1_addr+0x08
+`define MOD_TRIG_FW_ID      16'h0076
+`define MOD_TRIG_FW_PATCH   16'h0003       //offset_addr dev_mod1_addr+0x0c
+`define MOD_TRIG_FW_MINOR   8'h00
+`define MOD_TRIG_FW_MAJOR   8'h01
+`define MOD_TRIG_NAME       "kAdoM1aB" // 64'h44_6D_61_4D_6F_64_41_6B //  DmaModAk
 
-`define MOD_DMA_MULTI_INT      1'b0               //module capabilities
-`define MOD_DMA_RTM_CAPAB      1'b0
-`define MOD_DMA_SOFT_RST_CAPAB 1'b0
-`define MOD_DMA_FULL_RST_CAPAB 1'b0
-`define MOD_DMA_INTERRUPT_ID   32'h00000000
+`define MOD_TRIG_MULTI_INT      1'b0               //module capabilities
+`define MOD_TRIG_RTM_CAPAB      1'b0
+`define MOD_TRIG_SOFT_RST_CAPAB 1'b0
+`define MOD_TRIG_FULL_RST_CAPAB 1'b0
+`define MOD_TRIG_INTERRUPT_ID   32'h00000000
 
-`define MOD_DMA_MAX_BYTES       32'h00200000  // 2MB DMA packets
-//`define MOD_DMA_MAX_BYTES       32'h00400000  // 4MB DMA packets
-//`define MOD_DMA_MAX_BYTES       32'h003FF000  //  Max allowed by Linux Driver
+`define MOD_TRIG_MAX_BYTES       32'h00200000  // 2MB DMA packets
+//`define MOD_TRIG_MAX_BYTES       32'h00400000  // 4MB DMA packets
+//`define MOD_TRIG_MAX_BYTES       32'h003FF000  //  Max allowed by Linux Driver
 
-`define MOD_DMA_TLP_PAYLOAD     32'h00000020  // 32 DW 128 Bytes. Depends or PCIe HW
+`define MOD_TRIG_TLP_PAYLOAD     32'h00000020  // 32 DW 128 Bytes. Depends or PCIe HW
 
 `define MOD_CNTRL_FULL_RST_BIT 31
 `define MOD_CNTRL_SFT_RST_BIT  30

@@ -1,37 +1,42 @@
-// ***************************************************************************
-// ***************************************************************************
-// Copyright 2014 - 2017 (c) Analog Devices, Inc. All rights reserved.
+//////////////////////////////////////////////////////////////////////////////////
+// Company:
+// Engineer:
 //
-// In this HDL repository, there are many different and unique modules, consisting
-// of various HDL (Verilog or VHDL) components. The individual modules are
-// developed independently, and may be accompanied by separate and unique license
-// terms.
+// Create Date: 04/30/2021 03:15:44 PM
+// Design Name:
+// Module Name: system_top
+// Project Name:
+// Target Devices: Kintex- 7
+// Tool Versions:
+// Description:
 //
-// The user should read each of these license terms, and understand the
-// freedoms and responsibilities that he or she has by using this source/core.
+// Dependencies:
 //
-// This core is distributed in the hope that it will be useful, but WITHOUT ANY
-// WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-// A PARTICULAR PURPOSE.
+// Additional Comments:
 //
-// Redistribution and use of source or resulting binaries, with or without modification
-// of this file, are permitted under one of the following two license terms:
 //
-//   1. The GNU General Public License version 2 as published by the
-//      Free Software Foundation, which can be found in the top level directory
-//      of this repository (LICENSE_GPL2), and also online at:
-//      <https://www.gnu.org/licenses/old-licenses/gpl-2.0.html>
+// Copyright 2018 IPFN-Instituto Superior Tecnico, Portugal
+// Creation Date   04/30/2018 03:15:44 PM
 //
-// OR
+// Licensed under the EUPL, Version 1.2 or - as soon they
+// will be approved by the European Commission - subsequent
+// versions of the EUPL (the "Licence");
 //
-//   2. An ADI specific BSD license, which can be found in the top level directory
-//      of this repository (LICENSE_ADIBSD), and also on-line at:
-//      https://github.com/analogdevicesinc/hdl/blob/master/LICENSE_ADIBSD
-//      This will allow to generate bit files and not release the source code,
-//      as long as it attaches to an ADI device.
+// You may not use this work except in compliance with the
+// Licence.
+// You may obtain a copy of the Licence at:
 //
-// ***************************************************************************
-// ***************************************************************************
+// https://joinup.ec.europa.eu/software/page/eupl
+//
+// Unless required by applicable law or agreed to in
+// writing, software distributed under the Licence is
+// distributed on an "AS IS" basis,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
+// express or implied.
+// See the Licence for the specific language governing
+// permissions and limitations under the Licence.
+//
+//
 
 `timescale 1ns/100ps
 //`include "shapi_stdrt_dev_inc.vh"
@@ -281,11 +286,18 @@ module system_top #
     wire [C_DATA_WIDTH/8-1:0] s_axis_c2h_tkeep_0;
 
 
-    wire [31:0] triglvl_0, trig_lvl_1, trig_lvl_2;
+    wire [31:0] triglvl_0, triglvl_1, triglvl_2;
     wire [31:0] param_mul_i, param_off_i, pulse_tof_i;
     
-    wire trigger0_i;
+    wire detect_0_i, trigger1_i ;
+    
     // instantiations
+    
+  OBUF   obuf_J11 (.O(user_sma_clk_p), .I(detect_0_i));
+  OBUF   obuf_J22 (.O(user_sma_clk_n), .I(trigger1_i));
+  OBUF   obuf_J4_1 (.O(user_sma_gpio_n), .I(detect_0_i));
+//  OBUF   obuf_j22 (.O(user_sma_gpio_p), .I(trigger1_i));
+// 
 
   IBUFDS_GTE2 i_ibufds_rx_ref_clk (
     .CEB (1'd0),
@@ -320,8 +332,6 @@ module system_top #
   // Reset buffer
   IBUF   pci_sys_reset_n_ibuf (.O(pci_sys_rst_n_c), .I(pci_sys_rst_n));
 
-
-  // instantiations
  // PCIe XDMA Core Top Level Wrapper
   xdma_0 xdma_id7024_i
      (
@@ -393,7 +403,6 @@ module system_top #
       .cfg_mgmt_read_write_done (),
       .cfg_mgmt_type1_cfg_reg_access ( 1'b0 ),
 
-
       //-- AXI Global
       .axi_aclk        ( pci_user_clk ),
       .axi_aresetn   (pci_user_resetn),
@@ -403,86 +412,87 @@ module system_top #
 
   system_wrapper i_system_wrapper (
 
-      .adc_data_a (adc_data[0]),
-      .adc_enable_a (adc_enable[0]),
-      .adc_valid_a (adc_valid[0]),
-      .adc_data_b (adc_data[1]),
-      .adc_enable_b (adc_enable[1]),
-      .adc_valid_b (adc_valid[1]),
-      .adc_data_c (adc_data[2]),
-      .adc_enable_c (adc_enable[2]),
-      .adc_valid_c (adc_valid[2]),
-      .adc_data_d (adc_data[3]),
-      .adc_enable_d (adc_enable[3]),
-      .adc_valid_d (adc_valid[3]),
-
-     .ddr3_addr (ddr3_addr),
-    .ddr3_ba (ddr3_ba),
-    .ddr3_cas_n (ddr3_cas_n),
-    .ddr3_ck_n (ddr3_ck_n),
-    .ddr3_ck_p (ddr3_ck_p),
-    .ddr3_cke (ddr3_cke),
-    .ddr3_cs_n (ddr3_cs_n),
-    .ddr3_dm (ddr3_dm),
-    .ddr3_dq (ddr3_dq),
-    .ddr3_dqs_n (ddr3_dqs_n),
-    .ddr3_dqs_p (ddr3_dqs_p),
-    .ddr3_odt (ddr3_odt),
-    .ddr3_ras_n (ddr3_ras_n),
-    .ddr3_reset_n (ddr3_reset_n),
-    .ddr3_we_n (ddr3_we_n),
-    .gpio0_i (gpio_i[31:0]),
-    .gpio0_o (gpio_o[31:0]),
-    .gpio0_t (gpio_t[31:0]),
-    .gpio1_i (gpio_i[63:32]),
-    .gpio1_o (gpio_o[63:32]),
-    .gpio1_t (gpio_t[63:32]),
-    .gpio_lcd_tri_io (gpio_lcd),
-    .iic_main_scl_io (iic_scl),
-    .iic_main_sda_io (iic_sda),
-    .mdio_mdc (mdio_mdc),
-    .mdio_mdio_io (mdio_mdio),
-    .mii_col (mii_col),
-    .mii_crs (mii_crs),
-    .mii_rst_n (mii_rst_n),
-    .mii_rx_clk (mii_rx_clk),
-    .mii_rx_dv (mii_rx_dv),
-    .mii_rx_er (mii_rx_er),
-    .mii_rxd (mii_rxd),
-    .mii_tx_clk (mii_tx_clk),
-    .mii_tx_en (mii_tx_en),
-    .mii_txd (mii_txd),
-    .linear_flash_addr (linear_flash_addr),
-    .linear_flash_adv_ldn (linear_flash_adv_ldn),
-    .linear_flash_ce_n (linear_flash_ce_n),
-    .linear_flash_dq_io (linear_flash_dq_io),
-    .linear_flash_oen (linear_flash_oen),
-    .linear_flash_wen (linear_flash_wen),
-    .sys_clk_n (sys_clk_n),
-    .sys_clk_p (sys_clk_p),
-    .sys_rst (sys_rst),
-    .uart_sin (uart_sin),
-    .uart_sout (uart_sout),
-    .rx_data_0_n (rx_data_n[0]),
-    .rx_data_0_p (rx_data_p[0]),
-    .rx_data_1_n (rx_data_n[1]),
-    .rx_data_1_p (rx_data_p[1]),
-    .rx_data_2_n (rx_data_n[2]),
-    .rx_data_2_p (rx_data_p[2]),
-    .rx_data_3_n (rx_data_n[3]),
-    .rx_data_3_p (rx_data_p[3]),
-    .rx_ref_clk_0 (rx_ref_clk),
-    .rx_sync_0 (rx_sync),
-    .rx_sysref_0 (rx_sysref),
-    .rx_core_clk (rx_clk),
-    .spi_clk_i (spi_clk),
-    .spi_clk_o (spi_clk),
-    .spi_csn_i (spi_csn),
-    .spi_csn_o (spi_csn),
-    .spi_sdi_i (spi_miso),
-    .spi_sdo_i (spi_mosi),
-    .spi_sdo_o (spi_mosi)
+          .adc_data_a (adc_data[0]),
+          .adc_enable_a (adc_enable[0]),
+          .adc_valid_a (adc_valid[0]),
+          .adc_data_b (adc_data[1]),
+          .adc_enable_b (adc_enable[1]),
+          .adc_valid_b (adc_valid[1]),
+          .adc_data_c (adc_data[2]),
+          .adc_enable_c (adc_enable[2]),
+          .adc_valid_c (adc_valid[2]),
+          .adc_data_d (adc_data[3]),
+          .adc_enable_d (adc_enable[3]),
+          .adc_valid_d (adc_valid[3]),
+    
+         .ddr3_addr (ddr3_addr),
+        .ddr3_ba (ddr3_ba),
+        .ddr3_cas_n (ddr3_cas_n),
+        .ddr3_ck_n (ddr3_ck_n),
+        .ddr3_ck_p (ddr3_ck_p),
+        .ddr3_cke (ddr3_cke),
+        .ddr3_cs_n (ddr3_cs_n),
+        .ddr3_dm (ddr3_dm),
+        .ddr3_dq (ddr3_dq),
+        .ddr3_dqs_n (ddr3_dqs_n),
+        .ddr3_dqs_p (ddr3_dqs_p),
+        .ddr3_odt (ddr3_odt),
+        .ddr3_ras_n (ddr3_ras_n),
+        .ddr3_reset_n (ddr3_reset_n),
+        .ddr3_we_n (ddr3_we_n),
+        .gpio0_i (gpio_i[31:0]),
+        .gpio0_o (gpio_o[31:0]),
+        .gpio0_t (gpio_t[31:0]),
+        .gpio1_i (gpio_i[63:32]),
+        .gpio1_o (gpio_o[63:32]),
+        .gpio1_t (gpio_t[63:32]),
+        .gpio_lcd_tri_io (gpio_lcd),
+        .iic_main_scl_io (iic_scl),
+        .iic_main_sda_io (iic_sda),
+        .mdio_mdc (mdio_mdc),
+        .mdio_mdio_io (mdio_mdio),
+        .mii_col (mii_col),
+        .mii_crs (mii_crs),
+        .mii_rst_n (mii_rst_n),
+        .mii_rx_clk (mii_rx_clk),
+        .mii_rx_dv (mii_rx_dv),
+        .mii_rx_er (mii_rx_er),
+        .mii_rxd (mii_rxd),
+        .mii_tx_clk (mii_tx_clk),
+        .mii_tx_en (mii_tx_en),
+        .mii_txd (mii_txd),
+        .linear_flash_addr (linear_flash_addr),
+        .linear_flash_adv_ldn (linear_flash_adv_ldn),
+        .linear_flash_ce_n (linear_flash_ce_n),
+        .linear_flash_dq_io (linear_flash_dq_io),
+        .linear_flash_oen (linear_flash_oen),
+        .linear_flash_wen (linear_flash_wen),
+        .sys_clk_n (sys_clk_n),
+        .sys_clk_p (sys_clk_p),
+        .sys_rst (sys_rst),
+        .uart_sin (uart_sin),
+        .uart_sout (uart_sout),
+        .rx_data_0_n (rx_data_n[0]),
+        .rx_data_0_p (rx_data_p[0]),
+        .rx_data_1_n (rx_data_n[1]),
+        .rx_data_1_p (rx_data_p[1]),
+        .rx_data_2_n (rx_data_n[2]),
+        .rx_data_2_p (rx_data_p[2]),
+        .rx_data_3_n (rx_data_n[3]),
+        .rx_data_3_p (rx_data_p[3]),
+        .rx_ref_clk_0 (rx_ref_clk),
+        .rx_sync_0 (rx_sync),
+        .rx_sysref_0 (rx_sysref),
+        .rx_core_clk (rx_clk),
+        .spi_clk_i (spi_clk),
+        .spi_clk_o (spi_clk),
+        .spi_csn_i (spi_csn),
+        .spi_csn_o (spi_csn),
+        .spi_sdi_i (spi_miso),
+        .spi_sdo_i (spi_mosi),
+        .spi_sdo_o (spi_mosi)
     );
+    
     // BAR0 register Space 8-bit address, 32-bit Data
 	//reg [31:0] status_reg_i = 32'hA5A5;
     (* keep = "true" *) reg  acq_on_r, acq_on_q;
@@ -524,64 +534,16 @@ module system_top #
 
            .status_reg(status_reg_i),
            .trig_0(triglvl_0),
-           .trig_1(triglvl_1),  //=
+           .trig_1(triglvl_1),  // I
            .trig_2(triglvl_2),
            .param_mul(param_mul_i),
            .param_off(param_off_i),
+           
            .pulse_tof(pulse_tof_i),
            
            .control_reg(control_reg_i)
     );
-/*
 
-        output      [31:0]  param_mul,
-        output      [31:0]  param_off,
-        input       [31:0]  wait_cnt,
-
-        output      [31:0]  param_off,
-        input       [31:0]  wait_cnt,
-
-        output      [31:0]  trig_0,
-        output      [31:0]  trig_1,
-        output      [31:0]  trig_2,
-        output      [31:0]  param_0,
-        output      [31:0]  param_1,
-        input       [31:0]  wait_cnt,
-
-  trigger_gen i_trigger_gen (
-    .adc_clk (rx_clk),
-
-    .adc_data_a (adc_data[0]),
-    .adc_enable_a (adc_enable[0]),
-    .adc_valid_a (adc_valid[0]),
-
-    .adc_data_b (adc_data[1]),
-    .adc_enable_b (adc_enable[1]),
-    .adc_valid_b (adc_valid[1]),
-
-    // Latency 480 ns ?
-    //Trigger levels are positive
-//    .trig_level_a ({2'b11, 16'hF000} ), // < 18'h02000            .trig_0(triglvl_0),
-           .trig_1(triglvl_1),
-           .trig_2(triglvl_2),
-           .param_mul(param_mul_i),
-           .param_off(param_off_i),
-/ 18'd8192 = -200mV 18'h03000 = -320mV
-//    .trig_level_b ({2'b00, 16'h1000} ), // >
-
-    .trig_reset(!gpio_o[9]), // First LED
-    .trig_level_add(gpio_o[12:11]),
-    .trig_level(gpio_o[55:40]),
-    .trig_lvl_0(triglvl_0),
-    .trig_lvl_1(triglvl_1),
-    //.trig_level_a (gpio_trigg_lvl), // {2'b11, 16'h0FE0} < 18'h02000 / 18'd8192 = -200mV 18'h03000 = -320mV
-    //.trig_level_b (gpio_trigg_lvl), // > {2'b00, 16'h0200}
-//    .trig_level_b ({2'b11, 16'h8000} ),  //,-2048
-
-    .trigger0 (user_sma_clk_n), // user_sma_clk_p
-    .trigger1 (user_sma_gpio_n) //J14
-    );
-*/
     trigger_gen i_trigger_gen (
         .clk(rx_clk), // 125MHz
 
@@ -615,8 +577,8 @@ module system_top #
        
        .pulse_tof(pulse_tof_i), //O
 
-        .trigger0 (trigger0_i), // user_sma_clk_n
-        .trigger1 () //J14trigger0_i
+        .detect_pls_0 (detect_0_i), // user_sma_clk_n
+        .detect_pls_1 (trigger1_i) //J14detect_0_i
     );
    
     wire m_axis128_tvalid, m_axis128_tready;
@@ -657,7 +619,7 @@ module system_top #
     reg [31:0] adc_cnt = 32'h00;
     wire [31:0] adc_data3  = adc_data[3];
     wire [C_S_AXI_DATA_WIDTH-1:0] adc_data_all = {adc_cnt, adc_data[2], adc_data[1], adc_data[0]};
-    wire  adc_dma_tvalid = adc_enable[0]; // && trigger0_i; //&& adc_valid[0] Write DMA FIFO only after trigger 0
+    wire  adc_dma_tvalid = adc_enable[0]; // && detect_0_i; //&& adc_valid[0] Write DMA FIFO only after trigger 0
 
 
     reg [1:0] soft_trig_dly;
@@ -675,7 +637,7 @@ module system_top #
                 else
                     begin
                          soft_trig_dly <=  #TCQ  {soft_trig_dly[0], control_reg_i[`STRG_BIT]}; // delay pipe
-                         hard_trig_dly <=  #TCQ  {hard_trig_dly[0], trigger0_i}; // delay pipe
+                         hard_trig_dly <=  #TCQ  {hard_trig_dly[0], detect_0_i}; // delay pipe
 
                          if( (soft_trig_dly == 2'b01) ||  (hard_trig_dly == 2'b01)) // 
                                 acq_on_r <= #TCQ  1'b1;
