@@ -62,11 +62,10 @@ set trig_i  "trigger_gen_i"
 
 set_property port_width 1 [get_debug_ports u_ila_0/probe0] 
 connect_debug_port u_ila_0/probe0 [get_nets detect_0_i]
-# set_property port_width 1 [get_debug_ports u_ila_0/probe0]
-# connect_debug_port u_ila_0/probe0 [get_nets acq_on_r]
 
 # ConfigProbe u_ila_0 clk_100_cnt_i[*]
 
+ConfigProbe u_ila_0 trigger1_i
 ConfigProbe u_ila_0 ${trig_i}/state[*]
 ConfigProbe u_ila_0 ${trig_i}/adc_sum_a[*]
 
