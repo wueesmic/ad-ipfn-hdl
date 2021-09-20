@@ -6,9 +6,13 @@
 # vivado -mode batch -source project_implement_all.tcl
 # See https://github.com/Digilent/digilent-vivado-scripts
 ################################################################################
-# set DEBUG_CORE true
-set DEBUG_CORE false
+set DEBUG_CORE true
+# set DEBUG_CORE false
 set WRITE_MCS true
+
+# Set the reference directory to where the script is
+set origin_dir [file dirname [info script]]
+cd $origin_dir
 
 source ../../../scripts/adi_env.tcl
 source $ad_hdl_dir/projects/scripts/adi_board.tcl
@@ -17,11 +21,7 @@ source $ad_hdl_dir/projects/scripts/adi_project_xilinx.tcl
 # set top_file system_top.v
 set prog_file system_top
 
-# Set the reference directory to where the script is
-set origin_dir [file dirname [info script]]
 
-cd $origin_dir
-#
 ################################################################################
 # install UltraFast Design Methodology from TCL Store
 #################################################################################
@@ -38,6 +38,12 @@ set path_ip  ../src/ip
 set path_sdc ../src/constraints
 set path_out ../output
 set path_bd  ../fmcjesdadc1_kc705.srcs/sources_1/bd/system
+
+if {$DEBUG_CORE == true} {
+    set path_out ../output_dbg
+} else {
+    set path_out ../output
+}
 
 file mkdir $path_out
 ################################################################################
@@ -97,12 +103,19 @@ update_compile_order -fileset sources_1
 set_param general.maxThreads 8
 
 auto_detect_xpm
-synth_design -top system_top
+synth_design -top system_top -flatten_hierarchy none
 #synth_design -top red_pitaya_top -flatten_hierarchy none -bufg 16 -keep_equivalent_registers
 
 write_checkpoint         -force   $path_out/post_synth
 report_timing_summary    -file    $path_out/post_synth_timing_summary.rpt
 report_power             -file    $path_out/post_synth_power.rpt
+################################################################################
+## insert debug core
+##
+#################################################################################
+if {$DEBUG_CORE == true} {
+    source debug_core.tcl
+}
 
 opt_design
 power_opt_design
@@ -134,8 +147,12 @@ report_utilization       -file    $path_out/post_route_util.rpt
 #write_verilog            -force   $path_out/bft_impl_netlist.v
 #write_xdc -no_fixed_only -force   $path_out/bft_impl.xdc
 
+if {$DEBUG_CORE == true} {
+    write_debug_probes -force $path_out/${prog_file}.ltx
+}
+
 # xilinx::ultrafast::report_io_reg -verbose -file $path_out/post_route_iob.rpt
-write_bitstream -force            $path_out/${prog_file}.bit
+write_bitstream -force        $path_out/${prog_file}.bit
 
 close_project
 

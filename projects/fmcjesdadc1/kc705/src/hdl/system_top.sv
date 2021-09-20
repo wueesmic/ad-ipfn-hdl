@@ -295,7 +295,7 @@ module system_top #
     
   OBUF   obuf_J11 (.O(user_sma_clk_p), .I(detect_0_i));
   OBUF   obuf_J22 (.O(user_sma_clk_n), .I(trigger1_i));
-  OBUF   obuf_J4_1 (.O(user_sma_gpio_n), .I(detect_0_i));
+  OBUF   obuf_J4_1 (.O(user_sma_gpio_n), .I(detect_0_i)); // J14.1 bellow J11
 //  OBUF   obuf_j22 (.O(user_sma_gpio_p), .I(trigger1_i));
 // 
 
@@ -544,7 +544,7 @@ module system_top #
            .control_reg(control_reg_i)
     );
 
-    trigger_gen i_trigger_gen (
+    trigger_gen trigger_gen_i (
         .clk(rx_clk), // 125MHz
 
         .adc_data_a (adc_data[0]),

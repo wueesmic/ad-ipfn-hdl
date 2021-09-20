@@ -71,14 +71,13 @@ module trigger_gen #(
 /*********** Function Declarations ***************/
 
 function signed [ADC_DATA_WIDTH:0] adc_channel_sum_f;  // 17 bit for sum headroom
-	 input [ADC_DATA_WIDTH-1:0] adc_data_first;
-	 input [ADC_DATA_WIDTH-1:0] adc_data_second;
+	 input [31:0] adc_data;
 
      reg signed [ADC_DATA_WIDTH:0] adc_ext_1st;
      reg signed [ADC_DATA_WIDTH:0] adc_ext_2nd;
 	   begin
-            adc_ext_1st = $signed({adc_data_first[ADC_DATA_WIDTH-1],  adc_data_first}); // sign extend
-            adc_ext_2nd = $signed({adc_data_second[ADC_DATA_WIDTH-1], adc_data_second});
+            adc_ext_1st = $signed({adc_data[15],  adc_data[15:0]}); // sign extend
+            adc_ext_2nd = $signed({adc_data[31], adc_data[31:16]});
             adc_channel_sum_f = adc_ext_1st + adc_ext_2nd;
 	  end
   endfunction
@@ -103,7 +102,7 @@ assign z = ~|s;
 assign n = s[31];
 assign v = a[31]^b[31]^s[31]^c; /overload
 */
-
+/*
 function  trigger_falling_eval_f;
 	input signed [ADC_DATA_WIDTH:0] adc_channel_mean;
 	input signed [ADC_DATA_WIDTH-1:0] trig_lvl;
@@ -118,7 +117,8 @@ function  trigger_falling_eval_f;
         // trigger_falling_eval_f =(adc_channel_mean < trig_lvl_ext)? 1'b1: 1'b0;
     end
 endfunction
-/*
+*/
+
 function  trigger_falling_eval_f;
 	input signed [ADC_DATA_WIDTH:0] adc_channel_mean;
 	input signed [ADC_DATA_WIDTH-1:0] trig_lvl;
@@ -132,7 +132,7 @@ function  trigger_falling_eval_f;
 endfunction
 
 
-
+/*
 localparam delay=100;
 function timing_calculation;
      input [31:0] timer1;
@@ -152,16 +152,16 @@ function timing_calculation;
 
 /************ Trigger Logic ************/
 	/* ADC Data comes in pairs. Compute mean, or simply add */
-	reg signed [ADC_DATA_WIDTH:0] adc_mean_a, adc_mean_b, adc_mean_c, adc_mean_d ;
+	(* mark_debug = "true" *) reg signed [ADC_DATA_WIDTH:0] adc_sum_a, adc_sum_b, adc_sum_c, adc_sum_d ;
 	always @(posedge clk) begin
          if (adc_enable_a)  // Use adc_valid_a ?
-            adc_mean_a <= adc_channel_sum_f(adc_data_a[15:0], adc_data_a[31:16]); // check order (not really necessary, its a mean...)
+            adc_sum_a <= adc_channel_sum_f(adc_data_a); // check order (not really necessary, its a mean...)
          if (adc_enable_b)  // Use adc_valid_b ?
-            adc_mean_b <= adc_channel_sum_f(adc_data_b[15:0], adc_data_b[31:16]);
+            adc_sum_b <= adc_channel_sum_f(adc_data_b);
          if (adc_enable_c)
-            adc_mean_c <= adc_channel_sum_f(adc_data_c[15:0], adc_data_c[31:16]);
+            adc_sum_c <= adc_channel_sum_f(adc_data_c);
          if (adc_enable_d)
-            adc_mean_d <= adc_channel_sum_f(adc_data_d[15:0], adc_data_d[31:16]);
+            adc_sum_d <= adc_channel_sum_f(adc_data_d);
 	end
 
 	reg  detect_pls_0_r;
@@ -174,13 +174,15 @@ function timing_calculation;
     reg  signed [15:0]  trig_level_b_reg=0;
     reg  signed [15:0]  trig_level_c_reg=0;
  */
-    wire  signed [15:0]  trig_level_a_p = trig_level_a[31:16];
-    wire  signed [15:0]  trig_level_a_m = trig_level_a[15:0];
-    wire  signed [15:0]  trig_level_b_p = trig_level_b[31:16];
-    wire  signed [15:0]  trig_level_b_m = trig_level_b[15:0];
-    wire  signed [15:0]  trig_level_c_p = trig_level_c[31:16];
-    wire  signed [15:0]  trig_level_c_m = trig_level_c[15:0];
+    (* mark_debug = "true" *) wire  signed [15:0]  trig_level_a_p = trig_level_a[31:16];
+    (* mark_debug = "true" *) wire  signed [15:0]  trig_level_a_m = trig_level_a[15:0];
+    (* mark_debug = "true" *) wire  signed [15:0]  trig_level_b_p = trig_level_b[31:16];
+    (* mark_debug = "true" *) wire  signed [15:0]  trig_level_b_m = trig_level_b[15:0];
+    (* mark_debug = "true" *) wire  signed [15:0]  trig_level_c_p = trig_level_c[31:16];
+    (* mark_debug = "true" *) wire  signed [15:0]  trig_level_c_m = trig_level_c[15:0];
 
+     (* mark_debug = "true" *) wire less_i = trigger_falling_eval_f(adc_sum_b, trig_level_b_m);
+     
      reg [31:0] pulse_delay_r =  32'hFFFF;
      assign pulse_tof = pulse_delay_r;
 
@@ -195,11 +197,10 @@ function timing_calculation;
 
      reg [31:0] wait_cnt = 0; // {WAIT_WIDTH{1'b1}}
 
-    // (* mark_debug = "true" *)
-    reg [2:0] state = IDLE;
+     (* mark_debug = "true" *)  reg [2:0] state = IDLE;
 
-//reg [31:0] wait_cnt2=0,counter=0;
-reg [31:0] counter=0;
+    //reg [31:0] wait_cnt2=0,counter=0;
+    reg [31:0] counter=0;
 
  always @(posedge clk)
        if (!trig_enable) begin
@@ -218,54 +219,65 @@ reg [31:0] counter=0;
                 wait_cnt <= wait_cnt - 1;
                  if (wait_cnt == {32{1'b0}}) begin
                    state <= READY;
-                   pulse_delay_r  <=   32'h0A; // Testing
+                   //pulse_delay_r  <=   32'h0A; // Testing
                  end
              end
              READY: begin // Armed: Waiting first pulse
-                if (trigger_rising_eval_f(adc_mean_a, trig_level_a_p)) begin
+                if (trigger_rising_eval_f(adc_sum_a, trig_level_a_p)) begin
                    state <= PULSE0;
                    detect_pls_0_r  <=  1'b1;
-                   pulse_delay_r  <=   32'h0B; // Testing
+                   pulse_delay_r  <=   {trig_level_b_m, 16'h0B} ; // Testing
                    wait_cnt <= 0;
                 end
     //            detect_pls_0_r  <=  0;
              end
              PULSE0 : begin // Got first pulse. Waiting Second
       //          detect_pls_0_r <=  1'b0;
-//                if (trigger_falling_eval_f(adc_mean_b, trig_level_b_reg)) begin // Testing  negative edge of input b
+//                if (trigger_falling_eval_f(adc_sum_b, trig_level_b_reg)) begin // Testing  negative edge of input b
 
-                if (trigger_falling_eval_f(adc_mean_b, trig_level_b_m)) begin // Testing  negative edge of input b
+                if (trigger_falling_eval_f(adc_sum_b, trig_level_b_m)) begin // Testing  negative edge of input b
                     state <= PULSE1;
-                    //pulse_delay_r  <=  wait_cnt;  // Save waiting Time
+                      pulse_delay_r  <=  wait_cnt + param_off;  // Save waiting Time + Offset
 //                    pulse_delay_r  <=  {{16{trig_level_b_m[ADC_DATA_WIDTH-1]}},trig_level_b_m};  //  testing
-                    pulse_delay_r  <=  {trig_level_b_m, wait_cnt[15:0]};  //  testing
+                    //pulse_delay_r  <=  {trig_level_b_m, wait_cnt[31:15]};  //  testing
+                    detect_pls_0_r  <=  1'b0;
+
+//                    detect_pls_1_r <=  1'b1;
                    // wait_cnt2 <= 'b0;
                 end
                 else
                     wait_cnt   <=  wait_cnt + param_mul; //  time units
              end
              PULSE1 : begin   // Waiting Third Pulse
-                if (trigger_rising_eval_f(adc_mean_c, trig_level_c_p)) begin
-                    detect_pls_0_r  <=  1'b0;
+                if (trigger_rising_eval_f(adc_sum_c, trig_level_c_p)) begin
+                    detect_pls_1_r  <=  1'b1;
                     state       <= PULSE2;
                     counter     <= 32'h00;
 
                 end
+                //else
+                 //   pulse_delay_r  <=  {wait_cnt[31:8], 8'h0C};  //  testing
+                
                //wait_cnt2<=wait_cnt2+8'd5;
 
 
              end
              PULSE2 : begin   // Got Third pulse. Waiting calculated delay
                 if (counter >= wait_cnt) begin
-                   detect_pls_0_r   <=  1'b0;
+                   //detect_pls_0_r   <=  1'b0;
+                   detect_pls_1_r <=  1'b0;
                    state        <= TRIGGER;
                 end
-                else
-                    counter <= counter + 32'h0001_0000;
+                else begin
+                    counter <= counter + 32'h0001_0000;  // count 8ns periods 
+                    //pulse_delay_r  <=  {wait_cnt[31:8], 8'h0D};  //  testing
+                    
+                    end
              end
              TRIGGER : begin // End Trigger
+                //detect_pls_1_r <=  1'b;
+
                 detect_pls_0_r <=  1'b1;
-                detect_pls_1_r <=  1'b1;
  //                    state <= IDLE;
              end
              default :

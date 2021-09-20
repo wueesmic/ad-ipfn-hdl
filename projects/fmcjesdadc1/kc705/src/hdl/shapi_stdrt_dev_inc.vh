@@ -54,8 +54,9 @@
 `define DEV_FW_MAJOR     8'h01
 
 // Use Linux command: date +%s to get UNIX timestamp
-`define DEV_TSTAMP      32'd1631808082
-//Thu 16 Sep 2021 05:01:24 PM WEST
+`define DEV_TSTAMP      32'd1632148624
+// Mon 20 Sep 2021 03:37:08 PM WEST
+
 `define DEV_NAME1         "1cdA" // first char right1631556386
 `define DEV_NAME2         "girT"
 `define DEV_NAME3         "htsE"
@@ -78,7 +79,7 @@
 `define MOD_TRIG_NEXT_ADDR  32'h00         //offset_addr dev_mod1_addr+0x04
 `define MOD_TRIG_FW_VENDOR  16'h1570       //offset_addr dev_mod1_addr+0x08
 `define MOD_TRIG_FW_ID      16'h0076
-`define MOD_TRIG_FW_PATCH   16'h0003       //offset_addr dev_mod1_addr+0x0c
+`define MOD_TRIG_FW_PATCH   16'h0000       //offset_addr dev_mod1_addr+0x0c
 `define MOD_TRIG_FW_MINOR   8'h00
 `define MOD_TRIG_FW_MAJOR   8'h01
 `define MOD_TRIG_NAME       "kAdoM1aB" // 64'h44_6D_61_4D_6F_64_41_6B //  DmaModAk
