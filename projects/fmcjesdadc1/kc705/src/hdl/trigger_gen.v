@@ -195,12 +195,12 @@ function timing_calculation;
 
      //localparam WAIT_WIDTH = 24;
 
-     reg [31:0] wait_cnt = 0; // {WAIT_WIDTH{1'b1}}
+     reg signed [31:0] wait_cnt = 0; // {WAIT_WIDTH{1'b1}}
 
      (* mark_debug = "true" *)  reg [2:0] state = IDLE;
 
     //reg [31:0] wait_cnt2=0,counter=0;
-    reg [31:0] counter=0;
+    reg signed [31:0] counter=0;
 
  always @(posedge clk)
        if (!trig_enable) begin
@@ -231,13 +231,13 @@ function timing_calculation;
                 end
     //            detect_pls_0_r  <=  0;
              end
-             PULSE0 : begin // Got first pulse. Waiting Second
+             PULSE0 : begin // Got first pulse. Waiting Second  8ns = 0.08 mm @ 10000m/s
       //          detect_pls_0_r <=  1'b0;
 //                if (trigger_falling_eval_f(adc_sum_b, trig_level_b_reg)) begin // Testing  negative edge of input b
 
                 if (trigger_falling_eval_f(adc_sum_b, trig_level_b_m)) begin // Testing  negative edge of input b
                     state <= PULSE1;
-                      pulse_delay_r  <=  wait_cnt + param_off;  // Save waiting Time + Offset
+                      pulse_delay_r  <=  wait_cnt + $signed(param_off);  // Save waiting Time + Offset
 //                    pulse_delay_r  <=  {{16{trig_level_b_m[ADC_DATA_WIDTH-1]}},trig_level_b_m};  //  testing
                     //pulse_delay_r  <=  {trig_level_b_m, wait_cnt[31:15]};  //  testing
                     detect_pls_0_r  <=  1'b0;
@@ -246,7 +246,7 @@ function timing_calculation;
                    // wait_cnt2 <= 'b0;
                 end
                 else
-                    wait_cnt   <=  wait_cnt + param_mul; //  time units
+                    wait_cnt   <=  wait_cnt + $signed(param_mul); //  time units
              end
              PULSE1 : begin   // Waiting Third Pulse
                 if (trigger_rising_eval_f(adc_sum_c, trig_level_c_p)) begin
