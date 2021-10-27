@@ -651,28 +651,35 @@ module system_top #
             adc_cnt <= 0;
         else if (adc_dma_tvalid)
             adc_cnt <= adc_cnt +1;
-
-   wire   m_axis_tready = s_axis_c2h_tready_0 || ( !acq_on_r ) ;// && prog_full); // Flush MAIN buffer on ACQ disable
+  
+   reg acq_on_rx_r = 1'b0;
+   always @(posedge rx_clk or posedge sys_rst)
+        if (sys_rst)
+            acq_on_rx_r <= 1'b0;
+        else 
+            acq_on_rx_r <= acq_on_r;
+ 
+   wire   m_axis_tready = s_axis_c2h_tready_0 || (!acq_on_r ) ;// && prog_full); // Flush MAIN buffer on ACQ disable
    wire   m_axis_tvalid;
    assign s_axis_c2h_tvalid_0 = m_axis_tvalid &&  acq_on_r ; // Stream only with ACQ enable
 
     wire [127:0] m_axis_tdata_pre;
     wire almost_full_axis_pre;
     wire s_axis_tready, s_axis_tvalid;
-    wire m_axis_tready_pre = s_axis_tready || ( (!acq_on_r) && almost_full_axis_pre ) ; // Fill  PRE  buffer on ACQ disable
+    wire m_axis_tready_pre = s_axis_tready || ( (!acq_on_r) && almost_full_axis_pre ) ; // on ACQ disable, fill  PRE  buffer up to  almost_full
     wire m_axis_tvalid_pre;
-    assign s_axis_tvalid = m_axis_tvalid_pre &&  acq_on_r ; // Fill Main only with ACQ enable
+    assign s_axis_tvalid = m_axis_tvalid_pre &&  acq_on_rx_r ; // Fill Main only with ACQ enable
 
 
    xpm_fifo_axis #(
       .CDC_SYNC_STAGES(2),            // DECIMAL Range: 2 - 8. Default value = 2.
       .CLOCKING_MODE("common_clock"), // String
       .ECC_MODE("no_ecc"),            // String
-      .FIFO_DEPTH(16384),              // DECIMAL 131072 65536  32768 16384  8192 (65536 Max 4194304 bit?) ~0.5 ms ACQ
+      .FIFO_DEPTH(16384),              // DECIMAL 131072 65536  32768 16384   ~0.131 ms pre-trigger ACQ
       .FIFO_MEMORY_TYPE("auto"),      // String
       .PACKET_FIFO("false"),          // String
-      .PROG_EMPTY_THRESH(3000),         // DECIMAL
-      .PROG_FULL_THRESH(4000),       // DECIMAL 8- 32763
+      .PROG_EMPTY_THRESH(3000),         // DECIMAL // Not used
+      .PROG_FULL_THRESH(4000),       // DECIMAL 8- 32763 // Not used
       //.RD_DATA_COUNT_WIDTH(14),        // DECIMAL
       .RELATED_CLOCKS(0),             // DECIMAL
       .SIM_ASSERT_CHK(0),             // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
@@ -680,8 +687,7 @@ module system_top #
       .TDEST_WIDTH(1),                // DECIMAL
       .TID_WIDTH(1),                  // DECIMAL
       .TUSER_WIDTH(1),                // DECIMAL
-//      .USE_ADV_FEATURES("0202"),      // String
-      .USE_ADV_FEATURES("0008") //,      // String
+      .USE_ADV_FEATURES("0008") //,      // String  enables almost_full flag; 
       //.WR_DATA_COUNT_WIDTH(15)         // DECIMAL log2(32768) + 1 = 16
    )
    xpm_fifo_axis_pre_trigg_i (

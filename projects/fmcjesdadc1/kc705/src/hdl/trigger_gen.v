@@ -65,7 +65,7 @@ module trigger_gen #(
     input      [31:0]  param_off,
 
     output [31:0] pulse_tof,  // Difference Pulse_0 -> Pulse_1
-    output detect_pls_0,
+    output detect_pls_0, //channel 4 Osc
     output detect_pls_1
   );
 /*********** Function Declarations ***************/
@@ -207,7 +207,7 @@ function timing_calculation;
           state <= IDLE;
           detect_pls_0_r  <=  0;
           detect_pls_1_r  <=  0;
-          wait_cnt    <= 32'd125_000_000; // 32'h0773_5940  24'd37000; //* 8ns Initial Idle Time  = 0.3 ms , Max 16777215 134 ms
+          wait_cnt    <= 32'd125_000_000; ////* 8ns Initial Idle Time  = 1 ms , Max 16777215 134 ms
 //          pulse_delay_r  <=  32'hFFFF;
 
        end
@@ -232,51 +232,35 @@ function timing_calculation;
     //            detect_pls_0_r  <=  0;
              end
              PULSE0 : begin // Got first pulse. Waiting Second  8ns = 0.08 mm @ 10000m/s
-      //          detect_pls_0_r <=  1'b0;
-//                if (trigger_falling_eval_f(adc_sum_b, trig_level_b_reg)) begin // Testing  negative edge of input b
 
                 if (trigger_falling_eval_f(adc_sum_b, trig_level_b_m)) begin // Testing  negative edge of input b
                     state <= PULSE1;
                       pulse_delay_r  <=  wait_cnt + $signed(param_off);  // Save waiting Time + Offset
-//                    pulse_delay_r  <=  {{16{trig_level_b_m[ADC_DATA_WIDTH-1]}},trig_level_b_m};  //  testing
+                      wait_cnt       <=  wait_cnt + $signed(param_off);  // Save pulse B-A  Time + Offset
                     //pulse_delay_r  <=  {trig_level_b_m, wait_cnt[31:15]};  //  testing
                     detect_pls_0_r  <=  1'b0;
-
-//                    detect_pls_1_r <=  1'b1;
-                   // wait_cnt2 <= 'b0;
                 end
                 else
-                    wait_cnt   <=  wait_cnt + $signed(param_mul); //  time units
+                    wait_cnt   <=  wait_cnt + $signed(param_mul);           //  time units
              end
              PULSE1 : begin   // Waiting Third Pulse
                 if (trigger_rising_eval_f(adc_sum_c, trig_level_c_p)) begin
                     detect_pls_1_r  <=  1'b1;
                     state       <= PULSE2;
                     counter     <= 32'h00;
-
                 end
-                //else
-                 //   pulse_delay_r  <=  {wait_cnt[31:8], 8'h0C};  //  testing
-                
-               //wait_cnt2<=wait_cnt2+8'd5;
-
 
              end
              PULSE2 : begin   // Got Third pulse. Waiting calculated delay
                 if (counter >= wait_cnt) begin
-                   //detect_pls_0_r   <=  1'b0;
                    detect_pls_1_r <=  1'b0;
                    state        <= TRIGGER;
                 end
                 else begin
                     counter <= counter + 32'h0001_0000;  // count 8ns periods 
-                    //pulse_delay_r  <=  {wait_cnt[31:8], 8'h0D};  //  testing
-                    
                     end
              end
              TRIGGER : begin // End Trigger
-                //detect_pls_1_r <=  1'b;
-
                 detect_pls_0_r <=  1'b1;
  //                    state <= IDLE;
              end
