@@ -25,6 +25,7 @@
 // You may not use this work except in compliance with the
 // Licence.
 // You may obtain a copy of the Licence at:
+
 //
 // https://joinup.ec.europa.eu/software/page/eupl
 //
@@ -33,6 +34,7 @@
 // distributed on an "AS IS" basis,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either
 // express or implied.
+
 // See the Licence for the specific language governing
 // permissions and limitations under the Licence.
 //
@@ -44,6 +46,7 @@
 `define STRG_BIT 		24 // Soft Trigger
 
 module system_top #
+
   (
    parameter PL_LINK_CAP_MAX_LINK_WIDTH          = 8,            // 1- X1; 2 - X2; 4 - X4; 8 - X8
    parameter PL_SIM_FAST_LINK_TRAINING           = "FALSE",      // Simulation Speedup
@@ -56,96 +59,110 @@ module system_top #
    parameter AXIS_CCIX_TX_TDATA_WIDTH     = 256,
    parameter AXIS_CCIX_RX_TUSER_WIDTH     = 46,
    parameter AXIS_CCIX_TX_TUSER_WIDTH     = 46
+
    )
 (
 
-  input                   sys_rst,
-  input                   sys_clk_p,
-  input                   sys_clk_n,
+    input                   sys_rst,
+    input                   sys_clk_p,
+    input                   sys_clk_n,
 
-  input                   uart_sin,
-  output                  uart_sout,
+    input                   uart_sin,
+    output                  uart_sout,
 
-  output      [ 2:0]      ddr3_1_n,
-  output      [ 1:0]      ddr3_1_p,
-  output                  ddr3_reset_n,
-  output      [13:0]      ddr3_addr,
-  output      [ 2:0]      ddr3_ba,
-  output                  ddr3_cas_n,
-  output                  ddr3_ras_n,
-  output                  ddr3_we_n,
-  output      [ 0:0]      ddr3_ck_n,
-  output      [ 0:0]      ddr3_ck_p,
-  output      [ 0:0]      ddr3_cke,
-  output      [ 0:0]      ddr3_cs_n,
-  output      [ 7:0]      ddr3_dm,
-  inout       [63:0]      ddr3_dq,
-  inout       [ 7:0]      ddr3_dqs_n,
-  inout       [ 7:0]      ddr3_dqs_p,
-  output      [ 0:0]      ddr3_odt,
+    output      [ 2:0]      ddr3_1_n,
+    output      [ 1:0]      ddr3_1_p,
+    output                  ddr3_reset_n,
+    output      [13:0]      ddr3_addr,
+    output      [ 2:0]      ddr3_ba,
 
-  output                  mdio_mdc,
-  inout                   mdio_mdio,
-  output                  mii_rst_n,
-  input                   mii_col,
-  input                   mii_crs,
-  input                   mii_rx_clk,
-  input                   mii_rx_er,
-  input                   mii_rx_dv,
-  input       [ 3:0]      mii_rxd,
-  input                   mii_tx_clk,
-  output                  mii_tx_en,
-  output      [ 3:0]      mii_txd,
+    output                  ddr3_cas_n,
+    output                  ddr3_ras_n,
+    output                  ddr3_we_n,
+    output      [ 0:0]      ddr3_ck_n,
+    output      [ 0:0]      ddr3_ck_p,
 
-  output      [26:1]      linear_flash_addr,
-  output                  linear_flash_adv_ldn,
-  output                  linear_flash_ce_n,
-  inout       [15:0]      linear_flash_dq_io,
-  output                  linear_flash_oen,
-  output                  linear_flash_wen,
+    output      [ 0:0]      ddr3_cke,
+    output      [ 0:0]      ddr3_cs_n,
 
-  output                  fan_pwm,
+    output      [ 7:0]      ddr3_dm,
+    inout       [63:0]      ddr3_dq,
+    inout       [ 7:0]      ddr3_dqs_n,
+    inout       [ 7:0]      ddr3_dqs_p,
+    output      [ 0:0]      ddr3_odt,
 
-  inout       [ 6:0]      gpio_lcd,
-  inout       [16:0]      gpio_bd,
+    output                  mdio_mdc,
+    inout                   mdio_mdio,
+    output                  mii_rst_n,
+    input                   mii_col,
 
-  output                  iic_rstn,
-  inout                   iic_scl,
-  inout                   iic_sda,
+    input                   mii_crs,
+    input                   mii_rx_clk,
+    input                   mii_rx_er,
+    input                   mii_rx_dv,
+    input       [ 3:0]      mii_rxd,
 
-  input                   rx_ref_clk_p,
-  input                   rx_ref_clk_n,
-  output                  rx_sysref,
-  output                  rx_sync,
-  input       [ 3:0]      rx_data_p,
-  input       [ 3:0]      rx_data_n,
 
-  output                  spi_csn_0,
-  output                  spi_clk,
-  inout                   spi_sdio,
+    input                   mii_tx_clk,
+    output                  mii_tx_en,
+    output      [ 3:0]      mii_txd,
+
+    output      [26:1]      linear_flash_addr,
+    output                  linear_flash_adv_ldn,
+    output                  linear_flash_ce_n,
+    inout       [15:0]      linear_flash_dq_io,
+    output                  linear_flash_oen,
+    output                  linear_flash_wen,
+
+
+    output                  fan_pwm,
+
+    inout       [ 6:0]      gpio_lcd,
+    inout       [16:0]      gpio_bd,
+
+    output                  iic_rstn,
+    inout                   iic_scl,
+    inout                   iic_sda,
+
+    input                   rx_ref_clk_p,
+
+    input                   rx_ref_clk_n,
+    output                  rx_sysref,
+    output                  rx_sync,
+    input       [ 3:0]      rx_data_p,
+    input       [ 3:0]      rx_data_n,
+
+
+    output                  spi_csn_0,
+    output                  spi_clk,
+    inout                   spi_sdio,
 
 // IPFN mods
+
   //User SMA Clock
-  output          user_sma_clk_p, // SMA J11
-  output          user_sma_clk_n, // SMA J12
-  //User SMA Gpio
-  output          user_sma_gpio_p, //Y23 USER_SMA_GPIO_P LVCMOS25 J13.1
-  output          user_sma_gpio_n, //Y24 USER_SMA_GPIO_N LVCMOS25 J14.1 bellow J11
+    output          user_sma_clk_p, // SMA J11
 
-//PCIE
-  output  [(PL_LINK_CAP_MAX_LINK_WIDTH - 1):0]    pci_exp_txp,
-  output  [(PL_LINK_CAP_MAX_LINK_WIDTH - 1):0]    pci_exp_txn,
-  input   [(PL_LINK_CAP_MAX_LINK_WIDTH - 1):0]    pci_exp_rxp,
-  input   [(PL_LINK_CAP_MAX_LINK_WIDTH - 1):0]    pci_exp_rxn,
+    output          user_sma_clk_n, // SMA J12
+    //User SMA Gpio
+    output          user_sma_gpio_p, //Y23 USER_SMA_GPIO_P LVCMOS25 J13.1
+    output          user_sma_gpio_n, //Y24 USER_SMA_GPIO_N LVCMOS25 J14.1 bellow J11
 
-  input   pci_sys_clk_p,
-  input   pci_sys_clk_n,
-  input   pci_sys_rst_n
+
+    //PCIE
+    output  [(PL_LINK_CAP_MAX_LINK_WIDTH - 1):0]    pci_exp_txp,
+    output  [(PL_LINK_CAP_MAX_LINK_WIDTH - 1):0]    pci_exp_txn,
+    input   [(PL_LINK_CAP_MAX_LINK_WIDTH - 1):0]    pci_exp_rxp,
+    input   [(PL_LINK_CAP_MAX_LINK_WIDTH - 1):0]    pci_exp_rxn,
+
+    input   pci_sys_clk_p,
+    input   pci_sys_clk_n,
+    input   pci_sys_rst_n
   );
 
    // Local Parameters derived from user selection
    localparam integer                              USER_CLK_FREQ         = ((PL_LINK_CAP_MAX_LINK_SPEED == 3'h4) ? 5 : 4);
    localparam TCQ = 1;
+
    localparam C_S_AXI_ID_WIDTH = 4;
    localparam C_M_AXI_ID_WIDTH = 4;
    localparam C_S_AXI_DATA_WIDTH = C_DATA_WIDTH;
@@ -288,16 +305,18 @@ module system_top #
 
     wire [31:0] triglvl_0, triglvl_1, triglvl_2;
     wire [31:0] param_mul_i, param_off_i, pulse_tof_i;
-    
-    wire detect_0_i, trigger1_i ;
-    
+
+    wire [31:0] control_reg_i;
+    wire acq_en_i = control_reg_i[`ACQE_BIT];
+    wire detect_0_i, detect_1_i, trigger1_i ;
+
     // instantiations
-    
-  OBUF   obuf_J11 (.O(user_sma_clk_p), .I(detect_0_i));
-  OBUF   obuf_J22 (.O(user_sma_clk_n), .I(trigger1_i));
-  OBUF   obuf_J4_1 (.O(user_sma_gpio_n), .I(detect_0_i)); // J14.1 bellow J11
+
+  OBUF   obuf_J11  (.O(user_sma_clk_p),  .I(detect_0_i));
+  OBUF   obuf_J22  (.O(user_sma_clk_n),  .I(detect_1_i));
+  OBUF   obuf_J4_1 (.O(user_sma_gpio_n), .I(acq_en_i)); // J14.1 bellow J11
 //  OBUF   obuf_j22 (.O(user_sma_gpio_p), .I(trigger1_i));
-// 
+//
 
   IBUFDS_GTE2 i_ibufds_rx_ref_clk (
     .CEB (1'd0),
@@ -333,7 +352,8 @@ module system_top #
   IBUF   pci_sys_reset_n_ibuf (.O(pci_sys_rst_n_c), .I(pci_sys_rst_n));
 
  // PCIe XDMA Core Top Level Wrapper
-  xdma_0 xdma_id7024_i
+
+  xdma_0 xdma_id7018_i
      (
       //---------------------------------------------------------------------------------------//
       //  PCI Express (pci_exp) Interface                                                      //
@@ -410,6 +430,75 @@ module system_top #
       .user_lnk_up     ( pci_user_lnk_up )
     );
 
+/*
+ *
+ *  xdma_0 xdma_id7028_i
+ *     (
+ *      //---------------------------------------------------------------------------------------//
+ *      //  PCI Express (pci_exp) Interface                                                      //
+ *      //---------------------------------------------------------------------------------------//
+ *      .sys_rst_n       ( pci_sys_rst_n_c ),
+ *      .sys_clk         ( pci_sys_clk ),
+ *
+ *      // Tx
+ *      .pci_exp_txn     ( pci_exp_txn ),
+ *      .pci_exp_txp     ( pci_exp_txp ),
+ *
+ *      // Rx
+ *      .pci_exp_rxn     ( pci_exp_rxn ),
+ *      .pci_exp_rxp     ( pci_exp_rxp ),
+ *
+ *      // AXI streaming ports
+ *      .s_axis_c2h_tdata_0(s_axis_c2h_tdata_0),
+ *      .s_axis_c2h_tlast_0(s_axis_c2h_tlast_0),
+ *      .s_axis_c2h_tvalid_0(s_axis_c2h_tvalid_0),
+ *      .s_axis_c2h_tready_0(s_axis_c2h_tready_0), // O
+ *      .s_axis_c2h_tkeep_0(s_axis_c2h_tkeep_0),
+ *      .m_axis_h2c_tdata_0(m_axis_h2c_tdata_0),
+ *      .m_axis_h2c_tlast_0(m_axis_h2c_tlast_0),
+ *      .m_axis_h2c_tvalid_0(m_axis_h2c_tvalid_0),
+ *      .m_axis_h2c_tready_0(m_axis_h2c_tready_0),
+ *      .m_axis_h2c_tkeep_0(m_axis_h2c_tkeep_0),
+ *     // LITE interface
+ *      //-- AXI Master Write Address Channel
+ *      .m_axil_awaddr    (m_axil_awaddr),
+ *      .m_axil_awprot    (m_axil_awprot),
+ *      .m_axil_awvalid   (m_axil_awvalid),
+ *      .m_axil_awready   (m_axil_awready),
+ *      //-- AXI Master Write Data Channel
+ *      .m_axil_wdata     (m_axil_wdata),
+ *      .m_axil_wstrb     (m_axil_wstrb),
+ *      .m_axil_wvalid    (m_axil_wvalid),
+ *      .m_axil_wready    (m_axil_wready),
+ *      //-- AXI Master Write Response Channel
+ *      .m_axil_bvalid    (m_axil_bvalid),
+ *      .m_axil_bresp     (m_axil_bresp),
+ *      .m_axil_bready    (m_axil_bready),
+ *      //-- AXI Master Read Address Channel
+ *      .m_axil_araddr    (m_axil_araddr),
+ *      .m_axil_arprot    (m_axil_arprot),
+ *      .m_axil_arvalid   (m_axil_arvalid),
+ *      .m_axil_arready   (m_axil_arready),
+ *      .m_axil_rdata     (m_axil_rdata),
+ *      //-- AXI Master Read Data Channel
+ *      .m_axil_rresp     (m_axil_rresp),
+ *      .m_axil_rvalid    (m_axil_rvalid),
+ *      .m_axil_rready    (m_axil_rready),
+ *
+ *
+ *      .usr_irq_req       (usr_irq_req),
+ *      .usr_irq_ack       (usr_irq_ack),
+ *      .msi_enable        (msi_enable),
+ *      .msi_vector_width  (msi_vector_width),
+ *
+ *      //-- AXI Global
+ *      .axi_aclk        ( pci_user_clk ),
+ *      .axi_aresetn   (pci_user_resetn),
+ *
+ *      .user_lnk_up     ( pci_user_lnk_up )
+ *    );
+ */
+
   system_wrapper i_system_wrapper (
 
           .adc_data_a (adc_data[0]),
@@ -424,7 +513,7 @@ module system_top #
           .adc_data_d (adc_data[3]),
           .adc_enable_d (adc_enable[3]),
           .adc_valid_d (adc_valid[3]),
-    
+
          .ddr3_addr (ddr3_addr),
         .ddr3_ba (ddr3_ba),
         .ddr3_cas_n (ddr3_cas_n),
@@ -492,12 +581,12 @@ module system_top #
         .spi_sdo_i (spi_mosi),
         .spi_sdo_o (spi_mosi)
     );
-    
+
     // BAR0 register Space 8-bit address, 32-bit Data
 	//reg [31:0] status_reg_i = 32'hA5A5;
     (* keep = "true" *) reg  acq_on_r, acq_on_q;
     wire almost_full_axis, almost_empty_axis, prog_full, prog_empty;
-	wire [31:0] control_reg_i;
+	//wire [31:0] control_reg_i;
 
     wire [15:0] rd_data_count;
 
@@ -538,20 +627,20 @@ module system_top #
            .trig_2(triglvl_2),
            .param_mul(param_mul_i),
            .param_off(param_off_i),
-           
+
            .pulse_tof(pulse_tof_i),
-           
+
            .control_reg(control_reg_i)
     );
 
     trigger_gen trigger_gen_i (
-        .clk(rx_clk), // 125MHz
+        .rxclk(rx_clk), // 125MHz
 
         .adc_data_a (adc_data[0]),
         .adc_enable_a (adc_enable[0]),
         .adc_valid_a (adc_valid[0]),
 
-        .adc_data_b (adc_data[1]), 
+        .adc_data_b (adc_data[1]),
 
         .adc_enable_b (adc_enable[1]),
         .adc_valid_b (adc_valid[1]),
@@ -567,20 +656,20 @@ module system_top #
         // Latency 480 ns ?
         //Trigger levels are positive
 
-        .trig_enable(control_reg_i[`ACQE_BIT]), // bit 4 second gpio gpio_o[36]
+        .trig_enable(acq_en_i), // bit 4 second gpio gpio_o[36]
 
-       .trig_level_a(triglvl_0),
-       .trig_level_b(triglvl_1),  //I
-       .trig_level_c(triglvl_2),
-       .param_mul(param_mul_i),
-       .param_off(param_off_i),
-       
-       .pulse_tof(pulse_tof_i), //O
+        .trig_level_a(triglvl_0),
+        .trig_level_b(triglvl_1),  //I
+        .trig_level_c(triglvl_2),
+        .param_mul(param_mul_i),
+        .param_off(param_off_i),
+
+        .pulse_tof(pulse_tof_i), //O
 
         .detect_pls_0 (detect_0_i), // user_sma_clk_n
-        .detect_pls_1 (trigger1_i) //J14detect_0_i
+        .detect_pls_1 (detect_1_i) //J14detect_0_i
     );
-   
+
     wire m_axis128_tvalid, m_axis128_tready;
     wire [127:0] m_axis128_data;
     wire m_axis64_tvalid, s_axis64_tready;
@@ -626,9 +715,8 @@ module system_top #
     reg [1:0] hard_trig_dly;
 
 // Trigger generation
-    wire acq_en_i = control_reg_i[`ACQE_BIT];
-    always @(posedge pci_user_clk or negedge control_reg_i[`ACQE_BIT]) begin
-        if (!control_reg_i[`ACQE_BIT])
+    always @(posedge pci_user_clk or negedge acq_en_i) begin
+        if (!acq_en_i)
                     begin
                         acq_on_r <= #TCQ  1'b0;
                         soft_trig_dly <=  #TCQ 2'b11;
@@ -639,7 +727,7 @@ module system_top #
                          soft_trig_dly <=  #TCQ  {soft_trig_dly[0], control_reg_i[`STRG_BIT]}; // delay pipe
                          hard_trig_dly <=  #TCQ  {hard_trig_dly[0], detect_0_i}; // delay pipe
 
-                         if( (soft_trig_dly == 2'b01) ||  (hard_trig_dly == 2'b01)) // 
+                         if( (soft_trig_dly == 2'b01) ||  (hard_trig_dly == 2'b01)) //
                                 acq_on_r <= #TCQ  1'b1;
 //                         if(hard_trig_dly == 2'b10) // detect falling  edge
 //                                acq_on_r <= #TCQ  1'b1;
@@ -651,14 +739,14 @@ module system_top #
             adc_cnt <= 0;
         else if (adc_dma_tvalid)
             adc_cnt <= adc_cnt +1;
-  
+
    reg acq_on_rx_r = 1'b0;
    always @(posedge rx_clk or posedge sys_rst)
         if (sys_rst)
             acq_on_rx_r <= 1'b0;
-        else 
+        else
             acq_on_rx_r <= acq_on_r;
- 
+
    wire   m_axis_tready = s_axis_c2h_tready_0 || (!acq_on_r ) ;// && prog_full); // Flush MAIN buffer on ACQ disable
    wire   m_axis_tvalid;
    assign s_axis_c2h_tvalid_0 = m_axis_tvalid &&  acq_on_r ; // Stream only with ACQ enable
@@ -687,7 +775,7 @@ module system_top #
       .TDEST_WIDTH(1),                // DECIMAL
       .TID_WIDTH(1),                  // DECIMAL
       .TUSER_WIDTH(1),                // DECIMAL
-      .USE_ADV_FEATURES("0008") //,      // String  enables almost_full flag; 
+      .USE_ADV_FEATURES("0008") //,      // String  enables almost_full flag;
       //.WR_DATA_COUNT_WIDTH(15)         // DECIMAL log2(32768) + 1 = 16
    )
    xpm_fifo_axis_pre_trigg_i (
