@@ -70,7 +70,7 @@
 `define DEV_CNTRL_SFT_RST_BIT  30
 `define DEV_CNTRL_ENDIAN_BIT   0
 
-`define MOD_TRIG_REG_OFF    8'h10         // Base address of Module Device
+`define MOD_TRIG_REG_OFF    6'h10         // Base address of Module Device
 
 //#### MODULE DMA MODULE REGISTERS ######//
 `define MOD_TRIG_MAGIC      16'h534D       //offset_addr dev_mod1_addr

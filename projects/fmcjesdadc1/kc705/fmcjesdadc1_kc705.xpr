@@ -3,7 +3,7 @@
 <!--                                                         -->
 <!-- Copyright 1986-2019 Xilinx, Inc. All Rights Reserved.   -->
 
-<Project Version="7" Minor="40" Path="/mnt/sda5/bernardo/tmp/GIT/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/fmcjesdadc1_kc705.xpr">
+<Project Version="7" Minor="40" Path="/home/bernardo/FPGA/Vivado/2019.1/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/fmcjesdadc1_kc705.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="9cd7dcb7b61e48de8e84e0f743edd920"/>
@@ -23,13 +23,13 @@
     <Option Name="ProjectType" Val="Default"/>
     <Option Name="IPRepoPath" Val="$PPRDIR/../../../library"/>
     <Option Name="IPRepoPath" Val="$PPRDIR/../../../../ghdl/library"/>
-    <Option Name="IPOutputRepo" Val="$PCACHEDIR/ip"/>
+    <Option Name="IPOutputRepo" Val="/mnt/sda5/bernardo/tmp/GIT/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/fmcjesdadc1_kc705.cache/ip"/>
     <Option Name="IPCachePermission" Val="read"/>
     <Option Name="IPCachePermission" Val="write"/>
     <Option Name="EnableCoreContainer" Val="FALSE"/>
     <Option Name="CreateRefXciForCoreContainers" Val="FALSE"/>
-    <Option Name="IPUserFilesDir" Val="$PIPUSERFILESDIR"/>
-    <Option Name="IPStaticSourceDir" Val="$PIPUSERFILESDIR/ipstatic"/>
+    <Option Name="IPUserFilesDir" Val="$PPRDIR/../../../../../../../../../mnt/sda5/bernardo/tmp/GIT/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/fmcjesdadc1_kc705.ip_user_files"/>
+    <Option Name="IPStaticSourceDir" Val="$PPRDIR/../../../../../../../../../mnt/sda5/bernardo/tmp/GIT/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/fmcjesdadc1_kc705.ip_user_files/ipstatic"/>
     <Option Name="EnableBDX" Val="FALSE"/>
     <Option Name="DSAVendor" Val="xilinx"/>
     <Option Name="DSABoardId" Val="kc705"/>
@@ -41,13 +41,13 @@
     <Option Name="WTVcsLaunchSim" Val="0"/>
     <Option Name="WTRivieraLaunchSim" Val="0"/>
     <Option Name="WTActivehdlLaunchSim" Val="0"/>
-    <Option Name="WTXSimExportSim" Val="0"/>
-    <Option Name="WTModelSimExportSim" Val="0"/>
-    <Option Name="WTQuestaExportSim" Val="0"/>
-    <Option Name="WTIesExportSim" Val="0"/>
-    <Option Name="WTVcsExportSim" Val="0"/>
-    <Option Name="WTRivieraExportSim" Val="0"/>
-    <Option Name="WTActivehdlExportSim" Val="0"/>
+    <Option Name="WTXSimExportSim" Val="1"/>
+    <Option Name="WTModelSimExportSim" Val="1"/>
+    <Option Name="WTQuestaExportSim" Val="1"/>
+    <Option Name="WTIesExportSim" Val="1"/>
+    <Option Name="WTVcsExportSim" Val="1"/>
+    <Option Name="WTRivieraExportSim" Val="1"/>
+    <Option Name="WTActivehdlExportSim" Val="1"/>
     <Option Name="GenerateIPUpgradeLog" Val="TRUE"/>
     <Option Name="XSimRadix" Val="hex"/>
     <Option Name="XSimTimeUnit" Val="ns"/>
@@ -62,14 +62,14 @@
   <FileSets Version="1" Minor="31">
     <FileSet Name="sources_1" Type="DesignSrcs" RelSrcDir="$PSRCDIR/sources_1">
       <Filter Type="Srcs"/>
-      <File Path="$PSRCDIR/sources_1/bd/system/system.bd">
+      <File Path="$PPRDIR/../../../../../../../../../mnt/sda5/bernardo/tmp/GIT/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/fmcjesdadc1_kc705.srcs/sources_1/bd/system/system.bd">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/src/ip/xdma_0/xdma_0.xci">
+      <File Path="$PPRDIR/src/ip/xdma_8g2/xdma_8g2.xci">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -97,9 +97,9 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/imports/hdl/system_wrapper.v">
+      <File Path="$PPRDIR/../../../../../../../../../mnt/sda5/bernardo/tmp/GIT/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/fmcjesdadc1_kc705.srcs/sources_1/imports/hdl/system_wrapper.v">
         <FileInfo>
-          <Attr Name="ImportPath" Val="$PSRCDIR/sources_1/bd/system/hdl/system_wrapper.v"/>
+          <Attr Name="ImportPath" Val="$PPRDIR/../../../../../../../../../mnt/sda5/bernardo/tmp/GIT/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/fmcjesdadc1_kc705.srcs/sources_1/bd/system/hdl/system_wrapper.v"/>
           <Attr Name="ImportTime" Val="1631634979"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="implementation"/>
@@ -133,7 +133,15 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/bd/system/ip/system_axi_ddr_cntrl_0/kc705_system_mig.prj">
+      <File Path="$PPRDIR/src/ip/xdma_0/xdma_0.xci">
+        <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="implementation"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../../../../../../../../mnt/sda5/bernardo/tmp/GIT/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/fmcjesdadc1_kc705.srcs/sources_1/bd/system/ip/system_axi_ddr_cntrl_0/kc705_system_mig.prj">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="ScopedToCell" Val="system_axi_ddr_cntrl_0"/>

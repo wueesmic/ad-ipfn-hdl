@@ -50,7 +50,7 @@ module system_top #
   (
    parameter PL_LINK_CAP_MAX_LINK_WIDTH          = 8,            // 1- X1; 2 - X2; 4 - X4; 8 - X8
    parameter PL_SIM_FAST_LINK_TRAINING           = "FALSE",      // Simulation Speedup
-   parameter PL_LINK_CAP_MAX_LINK_SPEED          = 1,             // 1- GEN1; 2 - GEN2; 4 - GEN3
+   parameter PL_LINK_CAP_MAX_LINK_SPEED          = 2,             // 1- GEN1; 2 - GEN2; 4 - GEN3
    parameter C_DATA_WIDTH                        = 128 ,
    parameter EXT_PIPE_SIM                        = "FALSE",  // This Parameter has effect on selecting Enable External PIPE Interface in GUI.
    parameter C_ROOT_PORT                         = "FALSE",      // PCIe block is in root port mode
@@ -353,7 +353,7 @@ module system_top #
 
  // PCIe XDMA Core Top Level Wrapper
 
-  xdma_0 xdma_id7018_i
+  xdma_8g2 xdma_id7028_i
      (
       //---------------------------------------------------------------------------------------//
       //  PCI Express (pci_exp) Interface                                                      //
@@ -412,7 +412,7 @@ module system_top #
       .msi_enable        (msi_enable),
       .msi_vector_width  (msi_vector_width),
 
-
+/*
      // Config managemnet interface
       .cfg_mgmt_addr  ( 19'b0 ),
       .cfg_mgmt_write ( 1'b0 ),
@@ -422,8 +422,8 @@ module system_top #
       .cfg_mgmt_read_data (),
       .cfg_mgmt_read_write_done (),
       .cfg_mgmt_type1_cfg_reg_access ( 1'b0 ),
-
-      //-- AXI Global
+*/
+      //-- AXI Global/mnt/sda5/bernardo/tmp/GIT/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/src/hdl
       .axi_aclk        ( pci_user_clk ),
       .axi_aresetn   (pci_user_resetn),
 

@@ -82,13 +82,14 @@ read_verilog  "$ad_hdl_dir/library/common/ad_sysref_gen.v"
 # read_verilog  ".srcs/sources_1/bd/system/hdl/system_wrapper.v"
 read_verilog  "$path_bd/hdl/system_wrapper.v"
 
-read_ip "$path_ip/xdma_0/xdma_0.xci"
+# read_ip "$path_ip/xdma_0/xdma_0.xci"
+read_ip "$path_ip/xdma_8g2/xdma_8g2.xci"
 
 read_xdc "../system_constr.xdc" 
 read_xdc "$ad_hdl_dir/projects/common/kc705/kc705_system_constr.xdc"
 
 read_xdc "$path_sdc/kc705_sma_constr.xdc"
-read_xdc "$path_sdc/pcie_xdma_kc705_x4g2.xdc"
+read_xdc "$path_sdc/pcie_xdma_kc705_x8g2.xdc"
 
 update_compile_order -fileset sources_1
 update_compile_order -fileset sources_1
