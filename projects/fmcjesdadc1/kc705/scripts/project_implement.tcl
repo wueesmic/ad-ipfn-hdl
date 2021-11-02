@@ -6,9 +6,8 @@
 # vivado -mode batch -source project_implement_all.tcl
 # See https://github.com/Digilent/digilent-vivado-scripts
 ################################################################################
-set DEBUG_CORE true
-# set DEBUG_CORE false
-set WRITE_MCS true
+set DEBUG_CORE false
+set WRITE_MCS false
 
 # Set the reference directory to where the script is
 set origin_dir [file dirname [info script]]
@@ -85,7 +84,7 @@ read_verilog  "$path_bd/hdl/system_wrapper.v"
 # read_ip "$path_ip/xdma_0/xdma_0.xci"
 read_ip "$path_ip/xdma_8g2/xdma_8g2.xci"
 
-read_xdc "../system_constr.xdc" 
+read_xdc "../system_constr.xdc"
 read_xdc "$ad_hdl_dir/projects/common/kc705/kc705_system_constr.xdc"
 
 read_xdc "$path_sdc/kc705_sma_constr.xdc"
