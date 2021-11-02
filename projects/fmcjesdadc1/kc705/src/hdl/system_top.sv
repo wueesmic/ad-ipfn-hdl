@@ -423,7 +423,7 @@ module system_top #
       .cfg_mgmt_read_write_done (),
       .cfg_mgmt_type1_cfg_reg_access ( 1'b0 ),
 */
-      //-- AXI Global/mnt/sda5/bernardo/tmp/GIT/ad-ipfn-hdl/projects/fmcjesdadc1/kc705/src/hdl
+      //-- AXI Global
       .axi_aclk        ( pci_user_clk ),
       .axi_aresetn   (pci_user_resetn),
 
@@ -761,7 +761,8 @@ module system_top #
 
    xpm_fifo_axis #(
       .CDC_SYNC_STAGES(2),            // DECIMAL Range: 2 - 8. Default value = 2.
-      .CLOCKING_MODE("common_clock"), // String
+      .CLOCKING_MODE("independent_clock"), // String
+//      .CLOCKING_MODE("common_clock"), // String
       .ECC_MODE("no_ecc"),            // String
       .FIFO_DEPTH(16384),              // DECIMAL 131072 65536  32768 16384   ~0.131 ms pre-trigger ACQ
       .FIFO_MEMORY_TYPE("auto"),      // String
@@ -861,7 +862,7 @@ module system_top #
       .injectsbiterr_axis(1'b0), // 1-bit input: Single Bit Error Injection- Injects a single bit
                                                // error if the ECC feature is used.
 
-      .m_aclk(),                         // 1-bit input: Master Interface Clock: All signals on master
+      .m_aclk(pci_user_clk),                         // 1-bit input: Master Interface Clock: All signals on master
                                                // interface are sampled on the rising edge of this clock.
 
       .m_axis_tready(m_axis_tready_pre),           // 1-bit input: TREADY: Indicates that the slave can accept a m_axis128_tvalid
@@ -914,7 +915,8 @@ module system_top #
 
    xpm_fifo_axis #(
       .CDC_SYNC_STAGES(3),            // DECIMAL Range: 2 - 8. Default value = 2.
-      .CLOCKING_MODE("independent_clock"), // String
+//      .CLOCKING_MODE("independent_clock"), 
+      .CLOCKING_MODE("common_clock"), // String
       .ECC_MODE("no_ecc"),            // String
       .FIFO_DEPTH(32768),              // DECIMAL 131072 65536  32768 (65536 Max 4194304 bit?) ~0.5 ms ACQ
       .FIFO_MEMORY_TYPE("auto"),      // String
@@ -1015,13 +1017,13 @@ module system_top #
       .injectsbiterr_axis(1'b0), // 1-bit input: Single Bit Error Injection- Injects a single bit
                                                // error if the ECC feature is used.
 
-      .m_aclk(pci_user_clk),                         // 1-bit input: Master Interface Clock: All signals on master
+      .m_aclk(),                         // 1-bit input: Master Interface Clock: All signals on master
                                                // interface are sampled on the rising edge of this clock.
 
       .m_axis_tready(m_axis_tready),           // 1-bit input: TREADY: Indicates that the slave can accept a m_axis128_tvalid
                                                // transfer in the current cycle.
 
-      .s_aclk(rx_clk),                         // 1-bit input: Slave Interface Clock: All signals on slave
+      .s_aclk(pci_user_clk),                         // 1-bit input: Slave Interface Clock: All signals on slave
                                                // interface are sampled on the rising edge of this clock.
 
       .s_aresetn(pci_user_resetn),                   // 1-bit input: Active low asynchronous reset.
