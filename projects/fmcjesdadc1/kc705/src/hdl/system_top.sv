@@ -747,28 +747,31 @@ module system_top #
         else
             acq_on_rx_r <= acq_on_r;
 
-   wire   m_axis_tready = s_axis_c2h_tready_0 || (!acq_on_r ) ;// && prog_full); // Flush MAIN buffer on ACQ disable
-   wire   m_axis_tvalid;
-   assign s_axis_c2h_tvalid_0 = m_axis_tvalid &&  acq_on_r ; // Stream only with ACQ enable
+   wire   m_axis_tready_main = s_axis_c2h_tready_0 || (!acq_on_r ) ;// && prog_full); // Flush MAIN buffer on ACQ disable
+   wire   m_axis_tvalid_main;
+   assign s_axis_c2h_tvalid_0 = m_axis_tvalid_main &&  acq_on_r ; // Stream only with ACQ enable
 
     wire [127:0] m_axis_tdata_pre;
     wire almost_full_axis_pre;
-    wire s_axis_tready, s_axis_tvalid;
-    wire m_axis_tready_pre = s_axis_tready || ( (!acq_on_r) && almost_full_axis_pre ) ; // on ACQ disable, fill  PRE  buffer up to  almost_full
+    wire s_axis_tready_main;
+    wire prog_empty_axis_pre;
+    //wire m_axis_tready_pre = s_axis_tready_main || ( (!acq_on_r) && (!prog_empty_axis_pre) ) ; // on ACQ disable, fill  PRE  buffer up to  almost_full
+    wire m_axis_tready_pre = s_axis_tready_main || ( (!acq_on_r) && almost_full_axis_pre ) ; // on ACQ disable, fill  PRE  buffer up to  almost_full
     wire m_axis_tvalid_pre;
-    assign s_axis_tvalid = m_axis_tvalid_pre &&  acq_on_rx_r ; // Fill Main only with ACQ enable
+    wire s_axis_tvalid_main = m_axis_tvalid_pre &&  acq_on_rx_r ; // Fill Main only with ACQ enable
 
 
    xpm_fifo_axis #(
-      .CDC_SYNC_STAGES(2),            // DECIMAL Range: 2 - 8. Default value = 2.
-      .CLOCKING_MODE("independent_clock"), // String
-//      .CLOCKING_MODE("common_clock"), // String
+      .CDC_SYNC_STAGES(3),            // DECIMAL Range: 2 - 8. Default value = 2.
+  //    .CLOCKING_MODE("independent_clock"), // String
+      .CLOCKING_MODE("common_clock"), // String
       .ECC_MODE("no_ecc"),            // String
-      .FIFO_DEPTH(16384),              // DECIMAL 131072 65536  32768 16384   ~0.131 ms pre-trigger ACQ
+    //  .FIFO_DEPTH(16384),              // DECIMAL 131072 65536  32768 16384   ~0.131 ms pre-trigger ACQ
+      .FIFO_DEPTH(32768),              // DECIMAL    ~0.25 ms pre-trigger ACQ
       .FIFO_MEMORY_TYPE("auto"),      // String
       .PACKET_FIFO("false"),          // String
-      .PROG_EMPTY_THRESH(3000),         // DECIMAL // Not used
-      .PROG_FULL_THRESH(4000),       // DECIMAL 8- 32763 // Not used
+      .PROG_EMPTY_THRESH(32760),         // DECIMAL 
+      .PROG_FULL_THRESH(32760),       // DECIMAL 8- 32763 // Not used
       //.RD_DATA_COUNT_WIDTH(14),        // DECIMAL
       .RELATED_CLOCKS(0),             // DECIMAL
       .SIM_ASSERT_CHK(0),             // DECIMAL; 0=disable simulation messages, 1=enable simulation messages
@@ -776,7 +779,7 @@ module system_top #
       .TDEST_WIDTH(1),                // DECIMAL
       .TID_WIDTH(1),                  // DECIMAL
       .TUSER_WIDTH(1),                // DECIMAL
-      .USE_ADV_FEATURES("0008") //,      // String  enables almost_full flag;
+      .USE_ADV_FEATURES("0208") //,      // String  [3] enables almost_full flag; [9]  to 1 enables prog_empty flag; 
       //.WR_DATA_COUNT_WIDTH(15)         // DECIMAL log2(32768) + 1 = 16
    )
    xpm_fifo_axis_pre_trigg_i (
@@ -817,7 +820,7 @@ module system_top #
       .m_axis_tstrb(),             // TDATA_WIDTH/8-bit output: TSTRB: The byte qualifier that
                                                // indicates whether the content of the associated byte of TDATA
                                                // is processed as a data byte or a position byte. For a 64-bit
-                                               // DATA, bit 0 corresponds to the least significant byte on
+                                               // DATA, biprog_empty_axis_pret 0 corresponds to the least significant byte on
                                                // DATA, and bit 0 corresponds to the least significant byte on
                                                // DATA, and bit 7 corresponds to the most significant byte. For
                                                // example: STROBE[0] = 1b, DATA[7:0] is valid STROBE[7] = 0b,
@@ -831,7 +834,7 @@ module system_top #
                                                // valid transfer. A transfer takes place when both TVALID and
                                                // TREADY are asserted
 
-      .prog_empty_axis(),       // 1-bit output: Programmable Empty- This signal is asserted
+      .prog_empty_axis(prog_empty_axis_pre),       // 1-bit output: Programmable Empty- This signal is asserted
                                                // when the number of words in the FIFO is less than or equal to
                                                // the programmable empty threshold value. It is de-asserted
                                                // when the number of words in the FIFO exceeds the programmable
@@ -862,8 +865,8 @@ module system_top #
       .injectsbiterr_axis(1'b0), // 1-bit input: Single Bit Error Injection- Injects a single bit
                                                // error if the ECC feature is used.
 
-      .m_aclk(pci_user_clk),                         // 1-bit input: Master Interface Clock: All signals on master
-                                               // interface are sampled on the rising edge of this clock.
+      .m_aclk(),                         // 1-bit input: Master Interface Clock: All signals on master
+      //.m_aclk(pci_user_clk),                         // 1-bit input: Master Interface Clock: All signals on master
 
       .m_axis_tready(m_axis_tready_pre),           // 1-bit input: TREADY: Indicates that the slave can accept a m_axis128_tvalid
                                                // transfer in the current cycle.
@@ -915,8 +918,8 @@ module system_top #
 
    xpm_fifo_axis #(
       .CDC_SYNC_STAGES(3),            // DECIMAL Range: 2 - 8. Default value = 2.
-//      .CLOCKING_MODE("independent_clock"), 
-      .CLOCKING_MODE("common_clock"), // String
+      .CLOCKING_MODE("independent_clock"), 
+//      .CLOCKING_MODE("common_clock"), // String
       .ECC_MODE("no_ecc"),            // String
       .FIFO_DEPTH(32768),              // DECIMAL 131072 65536  32768 (65536 Max 4194304 bit?) ~0.5 ms ACQ
       .FIFO_MEMORY_TYPE("auto"),      // String
@@ -982,7 +985,7 @@ module system_top #
                                                // information that can be transmitted alongside the data
                                                // stream.
 
-      .m_axis_tvalid(m_axis_tvalid),           // 1-bit output: TVALID: Indicates that the master is driving a m_axis128_tvalid
+      .m_axis_tvalid(m_axis_tvalid_main),           // 1-bit output: TVALID: Indicates that the master is driving a m_axis128_tvalid
                                                // valid transfer. A transfer takes place when both TVALID and
                                                // TREADY are asserted
 
@@ -1002,7 +1005,7 @@ module system_top #
                                                // indicates the number of words available for reading in the
                                                // FIFO.
 
-      .s_axis_tready(s_axis_tready),           // 1-bit output: TREADY: Indicates that the slave can accept a
+      .s_axis_tready(s_axis_tready_main),           // 1-bit output: TREADY: Indicates that the slave can accept a
                                                // transfer in the current cycle.
 
       .sbiterr_axis(),             // 1-bit output: Single Bit Error- Indicates that the ECC
@@ -1017,13 +1020,13 @@ module system_top #
       .injectsbiterr_axis(1'b0), // 1-bit input: Single Bit Error Injection- Injects a single bit
                                                // error if the ECC feature is used.
 
-      .m_aclk(),                         // 1-bit input: Master Interface Clock: All signals on master
+      .m_aclk(pci_user_clk),                         // 1-bit input: Master Interface Clock: All signals on master
                                                // interface are sampled on the rising edge of this clock.
 
-      .m_axis_tready(m_axis_tready),           // 1-bit input: TREADY: Indicates that the slave can accept a m_axis128_tvalid
+      .m_axis_tready(m_axis_tready_main),           // 1-bit input: TREADY: Indicates that the slave can accept a m_axis128_tvalid
                                                // transfer in the current cycle.
 
-      .s_aclk(pci_user_clk),                         // 1-bit input: Slave Interface Clock: All signals on slave
+      .s_aclk(rx_clk),                         // 1-bit input: Slave Interface Clock: All signals on slave
                                                // interface are sampled on the rising edge of this clock.
 
       .s_aresetn(pci_user_resetn),                   // 1-bit input: Active low asynchronous reset.
@@ -1062,7 +1065,7 @@ module system_top #
                                                // information that can be transmitted alongside the data
                                                // stream.
 
-      .s_axis_tvalid(s_axis_tvalid)            // 1-bit input: TVALID: Indicates that the master is driving a
+      .s_axis_tvalid(s_axis_tvalid_main)            // 1-bit input: TVALID: Indicates that the master is driving a
                                                // valid transfer. A transfer takes place when both TVALID and
                                                // TREADY are asserted
 

@@ -7,7 +7,7 @@
 #
 ###############################################################################
 # User Configuration
-# Link Width   - x4
+# Link Width   - x8
 # Link Speed   - gen2
 # Family       - kintex7
 # Part         - xc7k325t
@@ -18,7 +18,7 @@
 ###############################################################################
 #
 #########################################################################################################################
-# User Constraints
+# User Constraintshttps://www.zomato.com/pt/grande-lisboa/masala-kraft-alvalade-lisboa
 #########################################################################################################################
 
 ###############################################################################
@@ -54,3 +54,24 @@ set_property IOSTANDARD LVCMOS25 [get_ports pci_sys_rst_n]
 # signals are the PCI Express reference clock.
 set_property LOC IBUFDS_GTE2_X0Y1 [get_cells pci_refclk_ibuf]
 
+# Other constraints in:
+#.../projects/common/kc705/kc705_system_constr.xdc
+#First LED
+#set_property -dict  {PACKAGE_PIN  AB8   IOSTANDARD  LVCMOS15} [get_ports gpio_bd[9]]
+# PACKAGE_PIN AB8 [get_ports GPIO_LED_0_LS] 
+#
+################################################################################
+##### SMA CLOCKS and GPOI
+###############################################################################
+set_property IOSTANDARD LVCMOS25 [get_ports user_sma_clk_*]
+#user_sma_clk_p SMA J11
+set_property PACKAGE_PIN L25 [get_ports user_sma_clk_p]
+#create_clock -period 100.000 -name sma_clk [get_ports user_sma_clk_p]
+set_property PACKAGE_PIN K25 [get_ports user_sma_clk_n]
+
+set_property IOSTANDARD LVCMOS25 [get_ports user_sma_gpio_*]
+set_property PACKAGE_PIN Y23 [get_ports user_sma_gpio_p]
+set_property PACKAGE_PIN Y24 [get_ports user_sma_gpio_n]
+#set_property IOSTANDARD LVCMOS25 [get_ports user_sma_gpio_n]
+
+set_property BITSTREAM.GENERAL.COMPRESS TRUE [current_design]

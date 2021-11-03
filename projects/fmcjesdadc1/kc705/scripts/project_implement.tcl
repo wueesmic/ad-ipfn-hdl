@@ -87,7 +87,7 @@ read_ip "$path_ip/xdma_8g2/xdma_8g2.xci"
 read_xdc "../system_constr.xdc"
 read_xdc "$ad_hdl_dir/projects/common/kc705/kc705_system_constr.xdc"
 
-read_xdc "$path_sdc/kc705_sma_constr.xdc"
+#read_xdc "$path_sdc/kc705_sma_constr.xdc"
 read_xdc "$path_sdc/pcie_xdma_kc705_x8g2.xdc"
 
 update_compile_order -fileset sources_1
