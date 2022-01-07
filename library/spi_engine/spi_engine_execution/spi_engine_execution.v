@@ -166,6 +166,9 @@ wire trigger_rx_s;
 wire last_sdi_bit;
 wire end_of_sdi_latch;
 
+(* direct_enable = "yes" *) wire cs_gen;
+
+assign cs_gen = inst_d1 == CMD_CHIPSELECT && cs_sleep_counter_compare == 1'b1;
 assign cmd_ready = idle;
 
 always @(posedge clk) begin
@@ -288,7 +291,7 @@ end
 always @(posedge clk) begin
   if (resetn == 1'b0) begin
     cs <= 'hff;
-  end else if (inst_d1 == CMD_CHIPSELECT && cs_sleep_counter_compare == 1'b1) begin
+  end else if (cs_gen) begin
     cs <= cmd_d1[NUM_OF_CS-1:0];
   end
 end
@@ -497,7 +500,7 @@ if (ECHO_SCLK == 1) begin : g_echo_sclk_miso_latch
                  last_sdi_bit_m[3] == 1'b0 &&
                  last_sdi_bit_m[2] == 1'b1) begin
       sdi_data_valid <= 1'b1;
-    end else if (sdi_data_ready == 1'b1 && sdi_data_valid == 1'b1) begin
+    end else if (sdi_data_ready == 1'b1) begin
       sdi_data_valid <= 1'b0;
     end
   end
