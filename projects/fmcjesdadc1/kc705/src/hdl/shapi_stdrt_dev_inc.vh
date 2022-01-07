@@ -45,20 +45,20 @@
 `define DEV_MINOR        8'h00
 `define DEV_NEXT_ADDR    32'h0000_0040  //offset_addr 0x04
 `define DEV_HW_VENDOR    16'h10EE       //offset_addr 0x08 Xilinx Vendor
-`define DEV_HW_ID        16'h0030
+`define DEV_HW_ID        16'h0018
 `define DEV_FW_VENDOR    16'h1570       //offset_addr 0x0c
 `define DEV_FW_ID        16'h0032
 `define DEV_FW_PATCH     16'h0000       //offset_addr 0x10
 `define DEV_FW_MINOR     8'h00
-`define DEV_FW_MAJOR     8'h02
+`define DEV_FW_MAJOR     8'h01
 
 // Use Linux command: date +%s to get UNIX timestamp
-`define DEV_TSTAMP      32'd1629236493
-//Tue Aug 17 22:41:33 WEST 2021
+`define DEV_TSTAMP      32'd1631550414
+//Mon 13 Sep 2021 05:26:56 PM WEST
 
-`define DEV_NAME1         "actA" // first char right
-`define DEV_NAME2         "omiM"
-`define DEV_NAME3         "2vdA"
+`define DEV_NAME1         "1cdA" // first char right
+`define DEV_NAME2         "girT"
+`define DEV_NAME3         "htsE"
 `define DEV_ENDIAN_CAPAB   1'b0      //offset_addr 0x24
 `define DEV_RTM_CAPAB      1'b0
 `define DEV_SOFT_RST_CAPAB 1'b0
