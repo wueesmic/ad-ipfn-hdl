@@ -17,9 +17,7 @@ source ../../../scripts/adi_env.tcl
 source $ad_hdl_dir/projects/scripts/adi_board.tcl
 source $ad_hdl_dir/projects/scripts/adi_project_xilinx.tcl
 
-# set top_file system_top.v
-set prog_file system_top
-
+set top_file system_top
 
 ################################################################################
 # install UltraFast Design Methodology from TCL Store
@@ -35,13 +33,13 @@ tclapp::install -quiet ultrafast
 set path_rtl ../src/hdl
 set path_ip  ../src/ip
 set path_sdc ../src/constraints
-set path_out ../output
+#set path_out ../binaries
 set path_bd  ../fmcjesdadc1_kc705.srcs/sources_1/bd/system
 
 if {$DEBUG_CORE == true} {
-    set path_out ../output_dbg
+    set path_out ../binaries_dbg
 } else {
-    set path_out ../output
+    set path_out ../binaries
 }
 
 file mkdir $path_out
@@ -78,7 +76,6 @@ read_verilog "$path_rtl/trigger_gen.v"
 read_verilog  "../../common/fmcjesdadc1_spi.v"
 read_verilog  "$ad_hdl_dir/library/common/ad_iobuf.v"
 read_verilog  "$ad_hdl_dir/library/common/ad_sysref_gen.v"
-# read_verilog  ".srcs/sources_1/bd/system/hdl/system_wrapper.v"
 read_verilog  "$path_bd/hdl/system_wrapper.v"
 
 # read_ip "$path_ip/xdma_0/xdma_0.xci"
@@ -87,7 +84,6 @@ read_ip "$path_ip/xdma_8g2/xdma_8g2.xci"
 read_xdc "../system_constr.xdc"
 read_xdc "$ad_hdl_dir/projects/common/kc705/kc705_system_constr.xdc"
 
-#read_xdc "$path_sdc/kc705_sma_constr.xdc"
 read_xdc "$path_sdc/pcie_xdma_kc705_x8g2.xdc"
 
 update_compile_order -fileset sources_1
@@ -103,7 +99,7 @@ update_compile_order -fileset sources_1
 set_param general.maxThreads 8
 
 auto_detect_xpm
-synth_design -top system_top -flatten_hierarchy none
+synth_design -top $top_file -flatten_hierarchy none
 #synth_design -top red_pitaya_top -flatten_hierarchy none -bufg 16 -keep_equivalent_registers
 
 write_checkpoint         -force   $path_out/post_synth
@@ -148,12 +144,12 @@ report_utilization       -file    $path_out/post_route_util.rpt
 #write_xdc -no_fixed_only -force   $path_out/bft_impl.xdc
 
 if {$DEBUG_CORE == true} {
-    write_debug_probes -force $path_out/${prog_file}.ltx
+    write_debug_probes -force $path_out/${top_file}.ltx
 }
 
 # xilinx::ultrafast::report_io_reg -verbose -file $path_out/post_route_iob.rpt
-write_bitstream -force        $path_out/${prog_file}.bit
+write_bitstream -force        $path_out/${top_file}.bit
 
 close_project
 
-# exit
+exit
