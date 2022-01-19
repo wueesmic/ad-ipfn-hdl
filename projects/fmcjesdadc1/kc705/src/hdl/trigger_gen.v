@@ -193,7 +193,7 @@ endfunction
 
      //localparam WAIT_WIDTH = 24;
 
-     reg signed [31:0] wait_cnt = 0; // {WAIT_WIDTH{1'b1}}
+     reg signed [31:0] delay_cnt = 'h00;
 
      (* mark_debug = "true" *)  reg [2:0] state = IDLE;
 
@@ -204,7 +204,7 @@ endfunction
           state <= IDLE;
           detect_pls_0_r  <=  0;
           detect_pls_1_r  <=  0;
-          hold_cnt_r    <= 32'd12_500_000; ////* 8ns Initial Idle Time  = 0.1 s , Max 16777215 134 ms
+          hold_cnt_r    <= 32'd12_500_000; //* 8ns Initial Idle Time  = 0.1 s Max 4294967294/34 s
        end
        else
           case (state)
@@ -224,31 +224,32 @@ endfunction
                    detect_pls_0_r  <=  1'b1;
                    pulse_delay_r  <=   {trig_level_b_m, 16'h0B} ; // Testing
                    hold_cnt_r        <= 32'd250; //* 8ns Idle Time  = 2 us ,
+                   delay_cnt <= 'h00;    // Reset delay counting
                 end
              end
-             HOLD1: begin        // Holding
+             HOLD1: begin        // Holding period, no detect, but counting
                 if (hold_cnt_r == {WAIT_WIDTH{1'b0}}) begin  // Holding time
                    state <= WAIT_PULSE2;
-                   wait_cnt <= 'h00;
                 end
-                else
+                else begin
+                    delay_cnt   <=  delay_cnt + $signed(param_mul); // counting delay time units
                     hold_cnt_r <=  hold_cnt_r - 32'h01;
+                end
              end
-             WAIT_PULSE2: begin // Got first pulse. Waiting Second Pulse  8ns = 0.08 mm @ 10000m/s
+             WAIT_PULSE2: begin // Got first pulse. Waiting Second channel  8ns = 0.08 mm @ 10000m/s
                 if (trigger_eval_f(adc_sum_b, trig_level_b_p, trig_level_b_m)) begin
-//                if (trigger_falling_eval_f(adc_sum_b, trig_level_b_m)) begin // Testing  negative edge of input b
                     state <= HOLD2;
                     pulse_delay_r  <= hold_cnt_r;  // Save waiting cycles
-                    wait_cnt       <=  wait_cnt + $signed(param_off);  // Save pulse B-A  Time + Offset
+                    delay_cnt       <=  delay_cnt + $signed(param_off);  // Save pulse B-A  Time + Offset
                     hold_cnt_r      <= 32'd5000; //* 8ns Idle Time  = 40 us , 1 us = 10 mm @10km/s
                     detect_pls_0_r  <=  1'b0;
                 end
                 else begin
-                    wait_cnt   <=  wait_cnt + $signed(param_mul);           //  time units
+                    delay_cnt   <=  delay_cnt + $signed(param_mul);           //  time units
                     hold_cnt_r <=  hold_cnt_r + 32'h01;
                 end
              end
-             HOLD2: begin        // Got second pulse. Holding
+             HOLD2: begin        // Got second pulse. Holding period, no detect.
                 if (hold_cnt_r == {WAIT_WIDTH{1'b0}}) begin  // Holding time
                    state       <= WAIT_PULSE3;
                 end
@@ -256,17 +257,15 @@ endfunction
                     hold_cnt_r <=  hold_cnt_r - 32'h01;
                 end
              end
-             WAIT_PULSE3: begin   //  Got second pulse. Waiting Third Pulse
+             WAIT_PULSE3: begin   //   Waiting Third channel
                 if (trigger_eval_f(adc_sum_c, trig_level_c_p, trig_level_c_m)) begin
-                //if (trigger_rising_eval_f(adc_sum_c, trig_level_c_p)) begin
                     detect_pls_1_r  <=  1'b1;
                     state       <= WAIT_TRIGGER;
                     counter     <= 32'h00;
                 end
-
              end
              WAIT_TRIGGER : begin   // Got Third pulse. Waiting calculated delay
-                if (counter >= wait_cnt) begin
+                if (counter >= delay_cnt) begin
                    detect_pls_0_r <=  1'b1;
                    detect_pls_1_r <=  1'b0;
                    state        <= TRIGGER;
