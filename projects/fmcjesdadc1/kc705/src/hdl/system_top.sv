@@ -692,24 +692,12 @@ module system_top #
       //assign s_axis_c2h_tvalid_0 =  m_axis_h2c_tvalid_0;
       //assign s_axis_c2h_tkeep_0 =  8'hFF;// m_axis_h2c_tkeep_0;
       // H2C dump
-      assign m_axis_h2c_tready_0 = 1'b1;// s_axis_c2h_tready_0;
-/*
-  axis_dwidth_conv128_64_0 axis_dwidth_conv128_64_ins (
-  .aresetn(aresetn),              // input wire aresetn
-  .s_axis_tvalid(m_axis128_tvalid),  // input wire s_axis_tvalid
-  .s_axis_tready(m_axis128_tready),  // output wire s_axis_tready
-  .s_axis_tdata(m_axis128_data),    // input wire [127 : 0] s_axis_tdata
-  .m_axis_tvalid(s_axis_c2h_tvalid_0),  // output wire m_axis_tvalid
-  .m_axis_tready(s_axis_c2h_tready_0),  // input wire m_axis_tready
-  .m_axis_tdata(s_axis_c2h_tdata_0)    // output wire [63 : 0] m_axis_tdata
-);
+    assign m_axis_h2c_tready_0 = 1'b1;// s_axis_c2h_tready_0;
 
-*/
-    reg [31:0] adc_cnt = 32'h00;
+    reg [15:0] adc_cnt = 'h00;
     wire [31:0] adc_data3  = adc_data[3];
-    wire [C_S_AXI_DATA_WIDTH-1:0] adc_data_all = {adc_cnt, adc_data[2], adc_data[1], adc_data[0]};
+    wire [C_S_AXI_DATA_WIDTH-1:0] adc_data_all = {adc_cnt, adc_data3[15:0], adc_data[2], adc_data[1], adc_data[0]};
     wire  adc_dma_tvalid = adc_enable[0]; // && detect_0_i; //&& adc_valid[0] Write DMA FIFO only after trigger 0
-
 
     reg [1:0] soft_trig_dly;
     reg [1:0] hard_trig_dly;
@@ -738,7 +726,7 @@ module system_top #
         if (sys_rst)
             adc_cnt <= 0;
         else if (adc_dma_tvalid)
-            adc_cnt <= adc_cnt +1;
+            adc_cnt <= adc_cnt + 1;
 
    reg acq_on_rx_r = 1'b0;
    always @(posedge rx_clk or posedge sys_rst)
