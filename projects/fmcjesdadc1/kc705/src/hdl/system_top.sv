@@ -185,7 +185,7 @@ module system_top #
   wire            rx_clk;
 
   wire    [N_ADC_CHANNELS-1:0] adc_enable;
-  wire    [N_ADC_CHANNELS-1:0] adc_valid;
+  wire    adc_valid;
   wire    [31:0] adc_data[0:N_ADC_CHANNELS-1]; // array of  32-bit registers;
 
 
@@ -503,16 +503,16 @@ module system_top #
 
           .adc_data_a (adc_data[0]),
           .adc_enable_a (adc_enable[0]),
-          .adc_valid_a (adc_valid[0]),
+          .adc_valid_a (adc_valid), // o
           .adc_data_b (adc_data[1]),
           .adc_enable_b (adc_enable[1]),
-          .adc_valid_b (adc_valid[1]),
+          .adc_valid_b (),
           .adc_data_c (adc_data[2]),
           .adc_enable_c (adc_enable[2]),
-          .adc_valid_c (adc_valid[2]),
+          .adc_valid_c (),
           .adc_data_d (adc_data[3]),
           .adc_enable_d (adc_enable[3]),
-          .adc_valid_d (adc_valid[3]),
+          .adc_valid_d (),
 
          .ddr3_addr (ddr3_addr),
         .ddr3_ba (ddr3_ba),
@@ -638,20 +638,20 @@ module system_top #
 
         .adc_data_a (adc_data[0]),
         .adc_enable_a (adc_enable[0]),
-        .adc_valid_a (adc_valid[0]),
+        .adc_valid_a (adc_valid), //i
 
         .adc_data_b (adc_data[1]),
 
         .adc_enable_b (adc_enable[1]),
-        .adc_valid_b (adc_valid[1]),
+        .adc_valid_b (),
 
         .adc_data_c (adc_data[2]),
         .adc_enable_c (adc_enable[2]),
-        .adc_valid_c (adc_valid[2]),
+        .adc_valid_c (),
 
         .adc_data_d (adc_data[3]),
         .adc_enable_d (adc_enable[3]),
-        .adc_valid_d (adc_valid[3]),
+        .adc_valid_d (),
 
         // Latency 480 ns ?
         //Trigger levels are positive
