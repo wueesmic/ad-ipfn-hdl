@@ -1,4 +1,4 @@
-## IPFN modification (version Vivado 2019.1)
+## IPFN modifications (version Vivado 2021.1)
 #
 create_bd_port -dir O adc_valid_a
 connect_bd_net [get_bd_ports adc_valid_a] [get_bd_pins axi_ad9250_core/adc_valid_0]
@@ -16,7 +16,7 @@ create_bd_port -dir O adc_enable_b
 connect_bd_net [get_bd_ports adc_enable_b] [get_bd_pins axi_ad9250_core/adc_enable_1]
 
 create_bd_port -dir O -from 31 -to 0 adc_data_b
-connect_bd_net [get_bd_ports adc_data_b] [get_bd_pins axi_ad9250_core/adc_data_b]
+connect_bd_net [get_bd_ports adc_data_b] [get_bd_pins axi_ad9250_core/adc_data_1]
 
 create_bd_port -dir O adc_valid_c
 #connect_bd_net [get_bd_ports adc_valid_c] [get_bd_pins axi_ad9250_core/adc_valid_a]
